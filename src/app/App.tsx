@@ -1,28 +1,29 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sidebar } from "./components/sidebar";
-import { DashboardHeader } from "./components/dashboard-header";
-import { KpiCards } from "./components/kpi-cards";
-import { NeedsAttention } from "./components/needs-attention";
-import { AllocationChart } from "./components/allocation-chart";
-import { AuthorizationVolume } from "./components/authorization-volume";
-import { AgentActivities } from "./components/agent-activities";
-import { ActiveCoordinators } from "./components/active-coordinators";
-import { RightPanel, type RightPanelHandle } from "./components/right-panel";
-import { CoordinatorMainContent } from "./components/coordinator-dashboard";
-import { NewCasePage } from "./components/new-case-page";
-import type { RoleId } from "./components/role-switcher";
+import { ErrorBoundary } from "@/shared/components/error-boundary";
+import { Sidebar } from "./features/sidebar/sidebar";
+import { DashboardHeader } from "./features/dashboard/header";
+import { KpiCards } from "./features/dashboard/kpi-cards";
+import { NeedsAttention } from "./features/dashboard/needs-attention";
+import { AllocationChart } from "./features/dashboard/allocation-chart";
+import { AuthorizationVolume } from "./features/dashboard/authorization-volume";
+import { AgentActivities } from "./features/dashboard/agent-activities";
+import { ActiveCoordinators } from "./features/dashboard/active-coordinators";
+import { RightPanel, type RightPanelHandle } from "./features/agent-panel/right-panel";
+import { CoordinatorMainContent } from "./features/coordinator/coordinator-dashboard";
+import { NewCasePage } from "./features/new-case/new-case-page";
+import type { RoleId } from "./features/sidebar/role-switcher";
 
 function ManagerMainContent({ isPanelOpen, onTogglePanel, onAskAgent }: { isPanelOpen: boolean; onTogglePanel: () => void; onAskAgent: (text: string) => void }) {
   return (
-    <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden relative border-r border-[#e5e5e5]">
+    <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden relative border-r border-border-default">
       <DashboardHeader isPanelOpen={isPanelOpen} onTogglePanel={onTogglePanel} />
       <div className="flex-1 overflow-x-hidden overflow-y-auto">
         {/* KPI Cards */}
         <KpiCards onAskAgent={onAskAgent} />
 
         {/* Divider */}
-        <div className="h-px w-full bg-[#e5e5e5]" />
+        <div className="h-px w-full bg-border-default" />
 
         {/* Needs Attention */}
         <NeedsAttention onAskAgent={onAskAgent} />
@@ -31,7 +32,7 @@ function ManagerMainContent({ isPanelOpen, onTogglePanel, onAskAgent }: { isPane
         <AllocationChart />
 
         {/* Authorization Volume + Agent Activities */}
-        <div className="flex w-full border-b border-[#e5e5e5]" style={{ height: "526px" }}>
+        <div className="flex w-full border-b border-border-default" style={{ height: "526px" }}>
           <AuthorizationVolume />
           <AgentActivities />
         </div>
@@ -75,15 +76,19 @@ export default function App() {
   const showRightPanel = !(activeRole === "pa-coordinator" && currentView === "new-case");
 
   return (
-    <div className="flex h-screen w-screen bg-white overflow-hidden font-['Ubuntu_Sans',sans-serif]">
-      <Sidebar activeRole={activeRole} onRoleChange={handleRoleChange} currentView={currentView} onNavigate={handleNavigate} />
-      {activeRole === "pa-manager" ? (
-        <ManagerMainContent isPanelOpen={isPanelOpen} onTogglePanel={() => setIsPanelOpen(prev => !prev)} onAskAgent={handleAskAgent} />
-      ) : currentView === "new-case" ? (
-        <NewCasePage onBack={() => setCurrentView("dashboard")} />
-      ) : (
-        <CoordinatorMainContent isPanelOpen={isPanelOpen} onTogglePanel={() => setIsPanelOpen(prev => !prev)} onAskAgent={handleAskAgent} />
-      )}
+    <div className="flex h-screen w-screen bg-white overflow-hidden">
+      <ErrorBoundary>
+        <Sidebar activeRole={activeRole} onRoleChange={handleRoleChange} currentView={currentView} onNavigate={handleNavigate} />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        {activeRole === "pa-manager" ? (
+          <ManagerMainContent isPanelOpen={isPanelOpen} onTogglePanel={() => setIsPanelOpen(prev => !prev)} onAskAgent={handleAskAgent} />
+        ) : currentView === "new-case" ? (
+          <NewCasePage onBack={() => setCurrentView("dashboard")} />
+        ) : (
+          <CoordinatorMainContent isPanelOpen={isPanelOpen} onTogglePanel={() => setIsPanelOpen(prev => !prev)} onAskAgent={handleAskAgent} />
+        )}
+      </ErrorBoundary>
       <AnimatePresence>
         {isPanelOpen && showRightPanel && (
           <motion.div
@@ -93,7 +98,9 @@ export default function App() {
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             className="shrink-0 h-full overflow-hidden"
           >
-            <RightPanel ref={rightPanelRef} />
+            <ErrorBoundary>
+              <RightPanel ref={rightPanelRef} />
+            </ErrorBoundary>
           </motion.div>
         )}
       </AnimatePresence>

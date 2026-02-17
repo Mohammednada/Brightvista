@@ -39,6 +39,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --color-primary-brand: #1F425F;
+  --color-border-default: #e5e5e5;
+  --color-text-primary: #1b2124;
+  --color-text-secondary: #4d595e;
+  --color-text-muted: #97a6b4;
+  --color-surface-bg: #f7fafc;
+  --color-surface-hover: #f0f2f4;
+  --color-surface-dropdown: #ebf2f5;
 }
 
 .dark {
@@ -117,6 +125,14 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-brand: #1F425F;
+  --color-border-default: #e5e5e5;
+  --color-text-primary: #1b2124;
+  --color-text-secondary: #4d595e;
+  --color-text-muted: #97a6b4;
+  --color-surface-bg: #f7fafc;
+  --color-surface-hover: #f0f2f4;
+  --color-surface-dropdown: #ebf2f5;
 }
 
 @layer base {
@@ -126,6 +142,7 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Ubuntu Sans', sans-serif;
   }
 
   /* Custom scrollbar styling */
