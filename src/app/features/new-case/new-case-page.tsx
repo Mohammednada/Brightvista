@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, ArrowLeft } from "lucide-react";
 import navSvg from "@/assets/icons/nav-icon-paths";
 
-import type { ChatMsg } from "./types";
+import type { ChatMsg, AgentStepsPhase, OrderCardData } from "./types";
 import { getNow } from "./types";
 import { useCaseBuilder } from "./state/case-builder-state";
 import type { CaseBuilderAction } from "./state/case-builder-state";
 import { findNewCaseEntry, suggestedPrompts, EXTRACTED_PATIENT_DATA } from "./agent-entries";
-import { ThinkingIndicator, UserBubble, AgentBubble, NextBestActionCard } from "./chat-components";
+import { ThinkingIndicator, UserBubble, AgentBubble } from "./chat-components";
 import { EHRConsentCard } from "./ehr-consent-card";
 import { EHRRedirectOverlay } from "./ehr-redirect-overlay";
 import { EHRAgentPanel } from "./ehr-agent-panel";
@@ -16,6 +16,12 @@ import { DocumentUploadZone, DocumentCaptureZone } from "./document-zones";
 import { CaseSummaryPanel } from "./summary-panel/case-summary-panel";
 import { EnhancedChatInput } from "./chat-enhancements/enhanced-chat-input";
 import { SmartEmptyState } from "./chat-enhancements/smart-empty-state";
+import { AgentDesktopPanel } from "./agent-desktop";
+import { OrdersCard } from "./orders-card";
+import { ReviewCard } from "./review-card";
+import { phase1_scanEHR, ehrOrderCards, autonomousPhases, submissionPhasesApi, submissionPhasesVoice, submissionPhasesRpa } from "@/mock/agent-mode-flow";
+import { RpaConsentCard } from "./rpa-consent-card";
+import type { SubmissionChannel } from "@/shared/types";
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
@@ -34,6 +40,13 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
+    // Agent mode state
+    const [agentModeActive, setAgentModeActive] = useState(false);
+    const [activePhase, setActivePhase] = useState<AgentStepsPhase | null>(null);
+    const [waitingForReview, setWaitingForReview] = useState(false);
+    const [waitingForRpaConsent, setWaitingForRpaConsent] = useState(false);
+    const [selectedChannel, setSelectedChannel] = useState<SubmissionChannel | null>(null);
+
     // Case builder state
     const { state: caseState, dispatch: caseDispatch, dispatchActions } = useCaseBuilder();
     const showSummaryPanel = caseState.status !== "draft" || Object.keys(caseState.patient).length > 0;
@@ -49,36 +62,212 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
 
     useEffect(() => {
       scrollToBottom();
-    }, [messages, isTyping, activeSpecialContent, scrollToBottom]);
+    }, [messages, isTyping, activeSpecialContent, activePhase, scrollToBottom]);
 
-    // Delayed scroll for special content that grows over time
+    // Delayed scroll for special content / agent mode that grows over time
     useEffect(() => {
-      if (!activeSpecialContent) return;
+      if (!activeSpecialContent && !activePhase) return;
       const interval = setInterval(scrollToBottom, 500);
       return () => clearInterval(interval);
-    }, [activeSpecialContent, scrollToBottom]);
+    }, [activeSpecialContent, activePhase, scrollToBottom]);
 
-    const addAgentMessage = useCallback((text: string, nextAction?: { label: string; prompt: string }) => {
+    const addAgentMessage = useCallback((
+      text: string,
+      extras?: {
+        nextAction?: { label: string; prompt: string };
+        agentStepsPhase?: AgentStepsPhase;
+        agentDesktopPhases?: AgentStepsPhase[];
+        orderCards?: OrderCardData[];
+        reviewCard?: boolean;
+        rpaConsentCard?: boolean;
+      }
+    ) => {
       const msg: ChatMsg = {
-        id: `a-${Date.now()}`,
+        id: `a-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         role: "agent",
         text,
         timestamp: getNow(),
-        nextAction,
+        nextAction: extras?.nextAction,
+        agentStepsPhase: extras?.agentStepsPhase,
+        agentDesktopPhases: extras?.agentDesktopPhases,
+        orderCards: extras?.orderCards,
+        reviewCard: extras?.reviewCard,
+        rpaConsentCard: extras?.rpaConsentCard,
       };
       setMessages((prev) => [...prev, msg]);
     }, []);
+
+    // ── Agent Mode handlers ─────────────────────────────────────────────────
+
+    const startAgentMode = useCallback(() => {
+      setAgentModeActive(true);
+
+      // Add user message
+      const userMsg: ChatMsg = {
+        id: `u-${Date.now()}`,
+        role: "user",
+        text: "Agent Mode — Scan EHR for Orders",
+        timestamp: getNow(),
+      };
+      setMessages((prev) => [...prev, userMsg]);
+      setInputValue("");
+
+      // Start phase 1 using desktop panel
+      setTimeout(() => {
+        setActivePhase(phase1_scanEHR);
+        addAgentMessage("", { agentDesktopPhases: [phase1_scanEHR] });
+      }, 400);
+    }, [addAgentMessage]);
+
+    const handlePhaseComplete = useCallback((completedPhase: AgentStepsPhase) => {
+      // Dispatch state updates from the completed phase
+      if (completedPhase.onCompleteActions.length > 0) {
+        dispatchActions(completedPhase.onCompleteActions);
+      }
+    }, [dispatchActions]);
+
+    // Called when all phases in a desktop panel instance are done
+    const handleDesktopAllComplete = useCallback((lastPhase: AgentStepsPhase) => {
+      setActivePhase(null);
+
+      // Determine what to show based on the last phase in the group
+      if (lastPhase.phaseId === "scan-ehr") {
+        // Phase 1 complete → show order cards
+        setTimeout(() => {
+          addAgentMessage(lastPhase.followUpMessage!, { orderCards: ehrOrderCards });
+        }, 400);
+      } else if (lastPhase.phaseId === "fill-form") {
+        // Phase 9 complete → show review card
+        setTimeout(() => {
+          setWaitingForReview(true);
+          addAgentMessage(lastPhase.followUpMessage!, { reviewCard: true });
+        }, 400);
+      } else if (lastPhase.phaseId === "check-status") {
+        // Submission complete → show final summary
+        setTimeout(() => {
+          addAgentMessage(lastPhase.followUpMessage!);
+        }, 400);
+      }
+    }, [addAgentMessage]);
+
+    const handleOrderSelect = useCallback((order: OrderCardData) => {
+      // Track the selected order's submission channel
+      setSelectedChannel(order.channelType);
+
+      // Add user selection message
+      const userMsg: ChatMsg = {
+        id: `u-${Date.now()}`,
+        role: "user",
+        text: `Selected: ${order.patientName} — ${order.procedure}`,
+        timestamp: getNow(),
+      };
+      setMessages((prev) => [...prev, userMsg]);
+
+      const channelLabel = order.channelType === "api" ? "X12 278 API" : order.channelType === "voice" ? "Voice/IVR" : "RPA Bot (Portal)";
+
+      // Launch all autonomous phases in a single desktop panel
+      setTimeout(() => {
+        addAgentMessage(
+          `Starting autonomous PA workflow for **${order.patientName}** — ${order.procedure} (CPT ${order.cptCode}).\nDiagnosis: ${order.diagnosis} (${order.icd10Code}). Payer: **${order.payer}** — Submission channel: **${channelLabel}**. I'll handle everything from here.`,
+        );
+        setTimeout(() => {
+          setActivePhase(autonomousPhases[0]);
+          addAgentMessage("", { agentDesktopPhases: autonomousPhases });
+        }, 600);
+      }, 300);
+    }, [addAgentMessage]);
+
+    const handleReviewApprove = useCallback(() => {
+      setWaitingForReview(false);
+
+      const userMsg: ChatMsg = {
+        id: `u-${Date.now()}`,
+        role: "user",
+        text: "Approved — Submit the PA request",
+        timestamp: getNow(),
+      };
+      setMessages((prev) => [...prev, userMsg]);
+
+      // Route to the correct submission channel
+      if (selectedChannel === "rpa") {
+        // RPA requires credential consent before submission
+        setTimeout(() => {
+          setWaitingForRpaConsent(true);
+          addAgentMessage(
+            "This order requires **portal automation (RPA)**. I need your authorization to use provider credentials for the Aetna portal before I can submit.",
+            { rpaConsentCard: true },
+          );
+        }, 500);
+      } else if (selectedChannel === "voice") {
+        setTimeout(() => {
+          setActivePhase(submissionPhasesVoice[0]);
+          addAgentMessage("", { agentDesktopPhases: submissionPhasesVoice });
+        }, 500);
+      } else {
+        // Default: API
+        setTimeout(() => {
+          setActivePhase(submissionPhasesApi[0]);
+          addAgentMessage("", { agentDesktopPhases: submissionPhasesApi });
+        }, 500);
+      }
+    }, [addAgentMessage, selectedChannel]);
+
+    const handleRpaConsent = useCallback(() => {
+      setWaitingForRpaConsent(false);
+
+      const userMsg: ChatMsg = {
+        id: `u-${Date.now()}`,
+        role: "user",
+        text: "Authorized — Portal credentials approved",
+        timestamp: getNow(),
+      };
+      setMessages((prev) => [...prev, userMsg]);
+
+      // Launch RPA submission phases
+      setTimeout(() => {
+        setActivePhase(submissionPhasesRpa[0]);
+        addAgentMessage("", { agentDesktopPhases: submissionPhasesRpa });
+      }, 500);
+    }, [addAgentMessage]);
+
+    const handleRpaConsentDeny = useCallback(() => {
+      setWaitingForRpaConsent(false);
+
+      const userMsg: ChatMsg = {
+        id: `u-${Date.now()}`,
+        role: "user",
+        text: "Denied — Skip portal submission",
+        timestamp: getNow(),
+      };
+      setMessages((prev) => [...prev, userMsg]);
+
+      setTimeout(() => {
+        addAgentMessage("Understood — the RPA portal submission was not authorized. This order will need to be submitted manually through the Aetna provider portal.");
+      }, 400);
+    }, [addAgentMessage]);
+
+    const handleReviewEdit = useCallback(() => {
+      setWaitingForReview(false);
+      setAgentModeActive(false);
+      addAgentMessage(
+        "Exiting agent mode. You can now manually edit any fields. When you're ready, type \"submit\" to submit the case or start agent mode again.",
+        { nextAction: { label: "Resume Agent Mode", prompt: "__AGENT_MODE__" } },
+      );
+    }, [addAgentMessage]);
+
+    // ── Standard (non-agent) handlers ───────────────────────────────────────
 
     const handleSpecialContentComplete = useCallback(() => {
       setActiveSpecialContent(null);
       addAgentMessage(
         EXTRACTED_PATIENT_DATA,
         {
-          label: "MRI Cervical Spine -- CPT 72141",
-          prompt: "The procedure is MRI Cervical Spine, CPT code 72141. Dr. Patel is ordering it for cervical radiculopathy, ICD-10 M54.12.",
+          nextAction: {
+            label: "MRI Cervical Spine -- CPT 72141",
+            prompt: "The procedure is MRI Cervical Spine, CPT code 72141. Dr. Patel is ordering it for cervical radiculopathy, ICD-10 M54.12.",
+          },
         }
       );
-      // Dispatch patient data from special content completion (EHR/Upload/Capture)
       dispatchActions([
         {
           type: "SET_PATIENT_FIELDS",
@@ -121,8 +310,10 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
       addAgentMessage(
         "No problem \u2014 the EHR connection was not authorized. You can still provide the patient details manually, upload a document, or capture one with your camera.\n\nHow would you like to proceed?",
         {
-          label: "Enter details manually",
-          prompt: "Let's go step by step. The patient is Margaret Thompson, DOB 03/15/1958.",
+          nextAction: {
+            label: "Enter details manually",
+            prompt: "Let's go step by step. The patient is Margaret Thompson, DOB 03/15/1958.",
+          },
         }
       );
     }, [addAgentMessage]);
@@ -135,8 +326,14 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
     const sendMessage = useCallback((text: string) => {
       if (!text.trim()) return;
 
-      // Handle special action triggers
+      // Handle agent mode trigger
       const lowerText = text.toLowerCase();
+      if (lowerText === "__agent_mode__" || lowerText === "agent mode" || lowerText.includes("scan ehr for orders")) {
+        startAgentMode();
+        return;
+      }
+
+      // Handle special action triggers
       const isEHR = lowerText === "__ehr_system__";
       const isUpload = lowerText === "__upload_document__";
       const isCapture = lowerText === "__capture_document__";
@@ -175,6 +372,13 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
       }
 
       const entry = findNewCaseEntry(text);
+
+      // Check if entry triggers agent mode
+      if (entry.triggerAgentMode) {
+        startAgentMode();
+        return;
+      }
+
       setThinkingSteps(entry.thinking);
       setIsTyping(true);
 
@@ -192,12 +396,11 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
         setThinkingSteps([]);
         setMessages((prev) => [...prev, agentMsg]);
 
-        // Dispatch state updates from agent entries
         if (entry.stateUpdates && entry.stateUpdates.length > 0) {
           dispatchActions(entry.stateUpdates);
         }
       }, thinkingDuration);
-    }, [dispatchActions]);
+    }, [dispatchActions, startAgentMode]);
 
     useImperativeHandle(ref, () => ({
       sendMessage,
@@ -218,8 +421,7 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
       [handleSubmit],
     );
 
-    const lastAgentMsg = !isTyping && !activeSpecialContent && !showRedirect ? [...messages].reverse().find(m => m.role === "agent") : null;
-    const showNextAction = lastAgentMsg?.nextAction && !isTyping && !activeSpecialContent && !showRedirect;
+    // Determine what shows at the bottom of the chat
     const showEmptyState = messages.length === 0 && !isTyping;
 
     return (
@@ -242,11 +444,18 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
                 <ArrowLeft size={18} className="text-[#565656]" />
               </button>
               <div className="flex items-center gap-2">
-                <p
-                  className="text-[16px] text-[#1a1a1a] font-semibold"
-                >
+                <p className="text-[16px] text-[#1a1a1a] font-semibold">
                   New Case
                 </p>
+                {agentModeActive && (
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-[10px] font-semibold text-white bg-brand px-2 py-0.5 rounded-full"
+                  >
+                    Agent Mode
+                  </motion.span>
+                )}
               </div>
             </div>
           </div>
@@ -256,17 +465,82 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
             <div className="max-w-[680px] mx-auto px-6 py-6 flex flex-col gap-6">
               {/* Empty state */}
               {showEmptyState && (
-                <SmartEmptyState onSendMessage={sendMessage} />
+                <SmartEmptyState onSendMessage={sendMessage} onStartAgentMode={startAgentMode} />
               )}
 
               {/* Chat messages */}
               {messages.length > 0 && (
                 <div className="flex flex-col gap-4">
                   <AnimatePresence mode="popLayout">
-                    {messages.map((msg) =>
-                      msg.role === "user" ? (
-                        <UserBubble key={msg.id} text={msg.text} time={msg.timestamp} />
-                      ) : (
+                    {messages.map((msg) => {
+                      // User bubble
+                      if (msg.role === "user") {
+                        return <UserBubble key={msg.id} text={msg.text} time={msg.timestamp} />;
+                      }
+
+                      // Desktop panel (multi-phase immersive simulation)
+                      if (msg.agentDesktopPhases) {
+                        const desktopPhases = msg.agentDesktopPhases;
+                        const lastPhaseInGroup = desktopPhases[desktopPhases.length - 1];
+                        return (
+                          <AgentDesktopPanel
+                            key={msg.id}
+                            phases={desktopPhases}
+                            onPhaseComplete={handlePhaseComplete}
+                            onAllComplete={() => handleDesktopAllComplete(lastPhaseInGroup)}
+                          />
+                        );
+                      }
+
+                      // Legacy agent steps phase card (unused but kept for safety)
+                      if (msg.agentStepsPhase) {
+                        return null;
+                      }
+
+                      // Order cards
+                      if (msg.orderCards) {
+                        return (
+                          <motion.div key={msg.id} className="flex flex-col gap-3">
+                            <AgentBubble
+                              text={msg.text}
+                              time={msg.timestamp}
+                              onActionSelect={sendMessage}
+                            />
+                            <OrdersCard orders={msg.orderCards} onSelect={handleOrderSelect} />
+                          </motion.div>
+                        );
+                      }
+
+                      // Review card
+                      if (msg.reviewCard) {
+                        return (
+                          <motion.div key={msg.id} className="flex flex-col gap-3">
+                            <AgentBubble
+                              text={msg.text}
+                              time={msg.timestamp}
+                              onActionSelect={sendMessage}
+                            />
+                            <ReviewCard onApprove={handleReviewApprove} onEdit={handleReviewEdit} />
+                          </motion.div>
+                        );
+                      }
+
+                      // RPA consent card
+                      if (msg.rpaConsentCard) {
+                        return (
+                          <motion.div key={msg.id} className="flex flex-col gap-3">
+                            <AgentBubble
+                              text={msg.text}
+                              time={msg.timestamp}
+                              onActionSelect={sendMessage}
+                            />
+                            <RpaConsentCard onAuthorize={handleRpaConsent} onDeny={handleRpaConsentDeny} />
+                          </motion.div>
+                        );
+                      }
+
+                      // Standard agent bubble
+                      return (
                         <AgentBubble
                           key={msg.id}
                           text={msg.text}
@@ -274,8 +548,8 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
                           actionOptions={msg.actionOptions}
                           onActionSelect={sendMessage}
                         />
-                      ),
-                    )}
+                      );
+                    })}
                   </AnimatePresence>
 
                   {isTyping && <ThinkingIndicator steps={thinkingSteps} />}
@@ -294,12 +568,6 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
                     <DocumentCaptureZone onComplete={handleSpecialContentComplete} />
                   )}
 
-                  {showNextAction && lastAgentMsg?.nextAction && (
-                    <NextBestActionCard
-                      label={lastAgentMsg.nextAction.label}
-                      onAction={() => sendMessage(lastAgentMsg.nextAction!.prompt)}
-                    />
-                  )}
                 </div>
               )}
 
@@ -315,7 +583,7 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
             onChange={setInputValue}
             onSubmit={handleSubmit}
             onKeyDown={handleKeyDown}
-            isTyping={isTyping}
+            isTyping={isTyping || !!activePhase}
             currentStep={caseState.currentStep}
             inputRef={inputRef}
           />

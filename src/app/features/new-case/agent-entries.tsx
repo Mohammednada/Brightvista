@@ -60,6 +60,19 @@ export const EXTRACTED_PATIENT_DATA =
 // ── New Case Agent Entries ────────────────────────────────────────────────────
 
 const newCaseEntries: AgentEntry[] = [
+  // ── Agent Mode trigger ──
+  {
+    match: (q) =>
+      q === "__agent_mode__" || q.includes("agent mode") || q.includes("scan ehr") ||
+      q.includes("find new orders") || q.includes("scan for orders"),
+    thinking: [
+      "Initializing agent mode...",
+      "Preparing EHR scanner...",
+    ],
+    response: "",
+    nextAction: { label: "", prompt: "" },
+    triggerAgentMode: true,
+  },
   {
     match: (q) =>
       q.includes("new pa") || q.includes("new prior auth") || q.includes("start a new case") ||

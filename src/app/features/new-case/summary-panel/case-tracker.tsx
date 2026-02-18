@@ -35,9 +35,9 @@ export function CaseTracker({ steps }: CaseTrackerProps) {
               </div>
 
               {/* Label */}
-              <div className={`pb-3 ${isLast ? "pb-0" : ""}`}>
+              <div className={`pb-3 ${isLast ? "pb-0" : ""} min-h-[16px] flex flex-col justify-center`}>
                 <span
-                  className={`text-[12px] leading-none ${
+                  className={`text-[12px] leading-[16px] ${
                     done
                       ? "text-text-secondary line-through decoration-text-muted/40"
                       : active
@@ -73,7 +73,7 @@ function Dot({ status }: { status: StepState["status"] }) {
       <motion.div
         initial={{ scale: 0.8 }}
         animate={{ scale: 1 }}
-        className="w-4 h-4 rounded-full bg-[#099F69] flex items-center justify-center shrink-0 mt-px"
+        className="w-4 h-4 rounded-full bg-[#099F69] flex items-center justify-center shrink-0"
       >
         <Check size={9} className="text-white" strokeWidth={3} />
       </motion.div>
@@ -82,7 +82,12 @@ function Dot({ status }: { status: StepState["status"] }) {
 
   if (status === "active") {
     return (
-      <div className="w-4 h-4 rounded-full border-2 border-brand flex items-center justify-center shrink-0 mt-px">
+      <div className="w-4 h-4 shrink-0 relative flex items-center justify-center">
+        <motion.div
+          className="absolute inset-0 rounded-full border-2 border-brand border-t-transparent"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        />
         <div className="w-1.5 h-1.5 rounded-full bg-brand" />
       </div>
     );
@@ -90,7 +95,7 @@ function Dot({ status }: { status: StepState["status"] }) {
 
   if (status === "needs-attention") {
     return (
-      <div className="w-4 h-4 rounded-full border-2 border-[#F3903F] flex items-center justify-center shrink-0 mt-px">
+      <div className="w-4 h-4 rounded-full border-2 border-[#F3903F] flex items-center justify-center shrink-0">
         <div className="w-1.5 h-1.5 rounded-full bg-[#F3903F]" />
       </div>
     );
@@ -98,6 +103,6 @@ function Dot({ status }: { status: StepState["status"] }) {
 
   // Pending
   return (
-    <div className="w-4 h-4 rounded-full border-[1.5px] border-[#ddd] shrink-0 mt-px" />
+    <div className="w-4 h-4 rounded-full border-[1.5px] border-[#ddd] shrink-0" />
   );
 }

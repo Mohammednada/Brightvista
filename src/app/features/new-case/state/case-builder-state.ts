@@ -111,13 +111,13 @@ function generateCaseId(): string {
 }
 
 const defaultSteps: StepState[] = [
-  { id: "patient", label: "Patient Info", status: "active" },
-  { id: "procedure", label: "Procedure", status: "pending" },
-  { id: "documentation", label: "Documentation", status: "pending" },
-  { id: "review", label: "Review", status: "pending" },
-  { id: "submit", label: "Submit", status: "pending" },
-  { id: "check-status", label: "Check Status", sublabel: "3 business days", status: "pending" },
-  { id: "decision", label: "Approval / Denial", status: "pending" },
+  { id: "patient", label: "Patient Info", sublabel: "Demographics & insurance details", status: "active" },
+  { id: "procedure", label: "Procedure", sublabel: "CPT/ICD codes & ordering physician", status: "pending" },
+  { id: "documentation", label: "Documentation", sublabel: "Clinical records & attachments", status: "pending" },
+  { id: "review", label: "Review", sublabel: "Verify accuracy before submission", status: "pending" },
+  { id: "submit", label: "Submit", sublabel: "Send to payer via assigned channel", status: "pending" },
+  { id: "check-status", label: "Check Status", sublabel: "Payer review — 3 business days", status: "pending" },
+  { id: "decision", label: "Approval / Denial", sublabel: "Final payer determination", status: "pending" },
 ];
 
 function createInitialState(): CaseBuilderState {

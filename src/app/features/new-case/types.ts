@@ -1,4 +1,4 @@
-export type { ActionOption, ChatMsg, AgentEntry } from "@/shared/types";
+export type { ActionOption, ChatMsg, AgentEntry, AgentStepDefinition, AgentStepsPhase, AgentDesktopScreen, AgentSystemType, OrderCardData } from "@/shared/types";
 export { getNow } from "@/shared/types";
 
 // Re-export state types for convenience

@@ -8,6 +8,7 @@ import {
   matchResponse,
 } from "./agent-entries";
 import { getNow } from "@/shared/types";
+import { ai } from "@/services/api";
 import { MorningBriefing } from "@/app/components/shared/morning-briefing";
 import { ActiveInsights } from "@/app/components/shared/active-insights";
 import { RecommendedAction } from "@/app/components/shared/recommended-action";
@@ -59,20 +60,37 @@ export const RightPanel = forwardRef<RightPanelHandle>(function RightPanel(_, re
     setThinkingSteps(matchThinkingSteps(text));
     setIsTyping(true);
 
-    const steps = matchThinkingSteps(text);
-    const thinkingDuration = steps.length * 800 + 400;
-    setTimeout(() => {
-      const agentMsg: ChatMsg = {
-        id: `a-${Date.now()}`,
-        role: "agent",
-        text: matchResponse(text),
-        timestamp: getNow(),
-        nextAction: matchNextAction(text),
-      };
-      setIsTyping(false);
-      setThinkingSteps([]);
-      setMessages((prev) => [...prev, agentMsg]);
-    }, thinkingDuration);
+    // Try backend AI chat first, fall back to local pattern matching
+    ai.chat(text)
+      .then((result) => {
+        const agentMsg: ChatMsg = {
+          id: `a-${Date.now()}`,
+          role: "agent",
+          text: result.response,
+          timestamp: getNow(),
+          nextAction: result.next_action || matchNextAction(text),
+        };
+        setIsTyping(false);
+        setThinkingSteps([]);
+        setMessages((prev) => [...prev, agentMsg]);
+      })
+      .catch(() => {
+        // Fallback to local pattern matching
+        const steps = matchThinkingSteps(text);
+        const thinkingDuration = steps.length * 800 + 400;
+        setTimeout(() => {
+          const agentMsg: ChatMsg = {
+            id: `a-${Date.now()}`,
+            role: "agent",
+            text: matchResponse(text),
+            timestamp: getNow(),
+            nextAction: matchNextAction(text),
+          };
+          setIsTyping(false);
+          setThinkingSteps([]);
+          setMessages((prev) => [...prev, agentMsg]);
+        }, thinkingDuration);
+      });
   }, []);
 
   useImperativeHandle(ref, () => ({

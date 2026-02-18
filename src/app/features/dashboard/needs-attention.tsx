@@ -3,8 +3,11 @@ import { ChevronDown } from "lucide-react";
 import { useClickOutside } from "@/shared/hooks/use-click-outside";
 import { NotificationCard } from "@/app/components/shared/notification-card";
 import { managerNotifications } from "@/mock/dashboard";
+import { useDashboardAnalytics } from "@/hooks/use-api";
 
 export function NeedsAttention({ onAskAgent }: { onAskAgent?: (text: string) => void }) {
+  const { data } = useDashboardAnalytics();
+  const notifications = (data.notifications.length > 0 ? data.notifications : managerNotifications) as typeof managerNotifications;
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
 
@@ -54,12 +57,12 @@ export function NeedsAttention({ onAskAgent }: { onAskAgent?: (text: string) => 
       {/* Cards */}
       <div className="flex flex-col gap-4">
         <div className="flex gap-4">
-          <NotificationCard {...managerNotifications[0]} onAskAgent={onAskAgent} />
-          <NotificationCard {...managerNotifications[1]} onAskAgent={onAskAgent} />
+          <NotificationCard {...notifications[0]} onAskAgent={onAskAgent} />
+          <NotificationCard {...notifications[1]} onAskAgent={onAskAgent} />
         </div>
         <div className="flex gap-4">
-          <NotificationCard {...managerNotifications[2]} onAskAgent={onAskAgent} />
-          <NotificationCard {...managerNotifications[3]} onAskAgent={onAskAgent} />
+          {notifications[2] && <NotificationCard {...notifications[2]} onAskAgent={onAskAgent} />}
+          {notifications[3] && <NotificationCard {...notifications[3]} onAskAgent={onAskAgent} />}
         </div>
       </div>
     </div>

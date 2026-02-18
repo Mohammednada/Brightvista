@@ -64,24 +64,6 @@ export function EnhancedChatInput({
   return (
     <div className="bg-white border-t border-border-default px-5 py-4">
       <div className="max-w-[680px] mx-auto">
-        {/* Suggestions row */}
-        {suggestions.length > 0 && !value.trim() && (
-          <div className="flex items-center gap-1.5 mb-2 overflow-x-auto">
-            <span className="text-[10px] text-text-muted font-medium uppercase tracking-wider shrink-0">
-              Suggested:
-            </span>
-            {suggestions.map((s) => (
-              <button
-                key={s}
-                onClick={() => handleSuggestionClick(s)}
-                className="px-2.5 py-1 rounded-full text-[11px] font-medium text-brand bg-brand/5 border border-brand/15 hover:bg-brand/10 transition-colors cursor-pointer whitespace-nowrap shrink-0"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        )}
-
         {/* Input container */}
         <div className="flex items-end bg-white rounded-[14px] border border-border-default shadow-sm overflow-hidden">
           {/* Hidden mirror for measuring */}

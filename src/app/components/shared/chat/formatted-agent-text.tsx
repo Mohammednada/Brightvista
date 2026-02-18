@@ -1,7 +1,48 @@
+import React from "react";
+
+/**
+ * Parses inline **bold** markdown and returns React nodes.
+ */
+function renderInline(text: string): React.ReactNode {
+  const parts: React.ReactNode[] = [];
+  const regex = /\*\*(.+?)\*\*/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    parts.push(
+      <span key={match.index} className="text-text-primary font-semibold">
+        {match[1]}
+      </span>
+    );
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length === 1 && typeof parts[0] === "string" ? parts[0] : <>{parts}</>;
+}
+
+/**
+ * Detects if a line is a bullet (starts with • or * followed by space).
+ * Lines starting with ** (bold) are NOT bullets.
+ */
+function isBulletLine(line: string): boolean {
+  const trimmed = line.trimStart();
+  if (trimmed.startsWith("\u2022")) return true;
+  // * followed by space is a bullet, but ** is bold syntax
+  if (trimmed.startsWith("* ")) return true;
+  return false;
+}
+
 /**
  * Renders structured agent text with support for headers, bullet lists,
- * dash separators, and colon separators.
- * Supports both \u2022 and * as bullet characters.
+ * dash separators, colon separators, and **bold** inline formatting.
  */
 export function FormattedAgentText({ text }: { text: string }) {
   const blocks = text.split("\n\n");
@@ -10,12 +51,8 @@ export function FormattedAgentText({ text }: { text: string }) {
     <div className="flex flex-col gap-2.5 text-[14px] leading-[22px] text-text-secondary">
       {blocks.map((block, bi) => {
         const lines = block.split("\n");
-        const bulletLines = lines.filter(
-          (l) => l.trimStart().startsWith("\u2022") || l.trimStart().startsWith("*")
-        );
-        const nonBulletLines = lines.filter(
-          (l) => !l.trimStart().startsWith("\u2022") && !l.trimStart().startsWith("*")
-        );
+        const bulletLines = lines.filter(isBulletLine);
+        const nonBulletLines = lines.filter((l) => !isBulletLine(l));
 
         // Pure paragraph (no bullets)
         if (bulletLines.length === 0) {
@@ -23,13 +60,13 @@ export function FormattedAgentText({ text }: { text: string }) {
           if (isHeader) {
             return (
               <p key={bi} className="text-text-primary text-[13px] tracking-[0.1px] mt-1 font-semibold">
-                {lines[0]}
+                {renderInline(lines[0])}
               </p>
             );
           }
           return (
             <p key={bi}>
-              {block}
+              {renderInline(block)}
             </p>
           );
         }
@@ -40,7 +77,7 @@ export function FormattedAgentText({ text }: { text: string }) {
             {nonBulletLines.map((line, li) =>
               line.trim() ? (
                 <p key={`h-${li}`} className="text-text-primary text-[13px] tracking-[0.1px] font-semibold">
-                  {line}
+                  {renderInline(line)}
                 </p>
               ) : null
             )}
@@ -56,17 +93,17 @@ export function FormattedAgentText({ text }: { text: string }) {
                     <span>
                       {dashMatch ? (
                         <>
-                          <span className="text-text-primary font-medium">{dashMatch[1]}</span>
+                          <span className="text-text-primary font-medium">{renderInline(dashMatch[1])}</span>
                           <span className="text-text-muted mx-1">{"\u2014"}</span>
-                          {dashMatch[2]}
+                          {renderInline(dashMatch[2])}
                         </>
                       ) : colonMatch ? (
                         <>
-                          <span className="text-text-primary font-medium">{colonMatch[1]}:</span>{" "}
-                          {colonMatch[2]}
+                          <span className="text-text-primary font-medium">{renderInline(colonMatch[1])}:</span>{" "}
+                          {renderInline(colonMatch[2])}
                         </>
                       ) : (
-                        content
+                        renderInline(content)
                       )}
                     </span>
                   </li>

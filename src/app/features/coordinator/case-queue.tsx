@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { caseQueueTasks } from "@/mock/coordinator";
+import { useCoordinatorAnalytics } from "@/hooks/use-api";
 
 const priorityStyles: Record<string, { bg: string; text: string; border: string }> = {
   urgent: { bg: "bg-[#fef2f2]", text: "text-[#d02241]", border: "border-[#fca5a5]" },
@@ -19,6 +20,8 @@ const statusStyles: Record<string, { bg: string; text: string; label: string }> 
 
 export function MyCaseQueue() {
   const [currentPage, setCurrentPage] = useState(1);
+  const { data } = useCoordinatorAnalytics();
+  const tasks = (data.case_queue.length > 0 ? data.case_queue : caseQueueTasks) as typeof caseQueueTasks;
 
   return (
     <div className="w-full px-6 py-5">
@@ -62,9 +65,9 @@ export function MyCaseQueue() {
           </div>
 
           {/* Table Rows */}
-          {caseQueueTasks.map((task, index) => {
-            const ps = priorityStyles[task.priority];
-            const ss = statusStyles[task.status];
+          {tasks.map((task, index) => {
+            const ps = priorityStyles[task.priority] || { bg: "bg-[#f0f4f8]", text: "text-text-secondary", border: "border-[#e5e5e5]" };
+            const ss = statusStyles[task.status] || { bg: "bg-[#f0f4f8]", text: "text-text-secondary", label: task.status };
             return (
               <div key={task.id}>
                 <div className="grid grid-cols-[100px_140px_1fr_80px_100px_100px_100px] gap-3 items-center px-4 py-2.5 hover:bg-[#fafbfc] transition-colors group">
@@ -96,7 +99,7 @@ export function MyCaseQueue() {
                     {task.deadline}
                   </span>
                 </div>
-                {index < caseQueueTasks.length - 1 && <div className="h-px bg-border-default" />}
+                {index < tasks.length - 1 && <div className="h-px bg-border-default" />}
               </div>
             );
           })}

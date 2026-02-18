@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Sparkles, Clock, AlertTriangle, Zap } from "lucide-react";
+import { Sparkles, Clock, AlertTriangle, Zap, Bot } from "lucide-react";
 import { suggestedPrompts } from "../agent-entries";
 import { quickStartCards } from "@/mock/new-case";
 
@@ -27,9 +27,10 @@ const cardIcons: Record<string, { icon: React.ReactNode; color: string; bg: stri
 
 interface SmartEmptyStateProps {
   onSendMessage: (text: string) => void;
+  onStartAgentMode?: () => void;
 }
 
-export function SmartEmptyState({ onSendMessage }: SmartEmptyStateProps) {
+export function SmartEmptyState({ onSendMessage, onStartAgentMode }: SmartEmptyStateProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -49,6 +50,36 @@ export function SmartEmptyState({ onSendMessage }: SmartEmptyStateProps) {
           I'll guide you through the prior authorization submission process — from patient lookup to payer submission.
         </p>
       </div>
+
+      {/* Agent Mode card */}
+      {onStartAgentMode && (
+        <motion.button
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.05 }}
+          onClick={onStartAgentMode}
+          className="w-full text-left rounded-2xl px-5 py-4 cursor-pointer bg-gradient-to-r from-[#1F425F] to-[#2a5a7e] hover:from-[#2a5a7e] hover:to-[#346e96] shadow-lg hover:shadow-xl transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0 group-hover:bg-white/20 transition-colors">
+              <Bot size={20} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[14px] text-white font-semibold leading-tight">
+                Agent Mode — Scan EHR for Orders
+              </p>
+              <p className="text-[12px] text-white/70 leading-tight mt-0.5">
+                Autonomous PA workflow — scan orders, build case, submit to payer
+              </p>
+            </div>
+            <div className="shrink-0">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-white/50 group-hover:text-white/80 transition-colors">
+                <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </motion.button>
+      )}
 
       {/* Quick Start section */}
       <div className="w-full">

@@ -15,7 +15,13 @@ export function deriveStepStatuses(state: CaseBuilderState): StepState[] {
     decision: "Approval / Denial",
   };
   const sublabels: Partial<Record<StepId, string>> = {
-    "check-status": "3 business days",
+    patient: "Demographics & insurance details",
+    procedure: "CPT/ICD codes & ordering physician",
+    documentation: "Clinical records & attachments",
+    review: "Verify accuracy before submission",
+    submit: "Send to payer via assigned channel",
+    "check-status": "Payer review — 3 business days",
+    decision: "Final payer determination",
   };
 
   // Determine completion for each section

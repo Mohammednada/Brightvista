@@ -1,7 +1,10 @@
 import { NotificationCard } from "@/app/components/shared/notification-card";
 import { coordinatorNotifications } from "@/mock/coordinator";
+import { useCoordinatorAnalytics } from "@/hooks/use-api";
 
 export function CoordinatorNeedsAttention({ onAskAgent }: { onAskAgent?: (text: string) => void }) {
+  const { data } = useCoordinatorAnalytics();
+  const notifications = (data.notifications.length > 0 ? data.notifications : coordinatorNotifications) as typeof coordinatorNotifications;
   return (
     <div className="bg-surface-bg w-full px-6 py-5">
       <div className="flex items-start justify-between mb-4">
@@ -16,12 +19,12 @@ export function CoordinatorNeedsAttention({ onAskAgent }: { onAskAgent?: (text: 
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex gap-4">
-          <NotificationCard {...coordinatorNotifications[0]} onAskAgent={onAskAgent} />
-          <NotificationCard {...coordinatorNotifications[1]} onAskAgent={onAskAgent} />
+          <NotificationCard {...notifications[0]} onAskAgent={onAskAgent} />
+          {notifications[1] && <NotificationCard {...notifications[1]} onAskAgent={onAskAgent} />}
         </div>
         <div className="flex gap-4">
-          <NotificationCard {...coordinatorNotifications[2]} onAskAgent={onAskAgent} />
-          <NotificationCard {...coordinatorNotifications[3]} onAskAgent={onAskAgent} />
+          {notifications[2] && <NotificationCard {...notifications[2]} onAskAgent={onAskAgent} />}
+          {notifications[3] && <NotificationCard {...notifications[3]} onAskAgent={onAskAgent} />}
         </div>
       </div>
     </div>

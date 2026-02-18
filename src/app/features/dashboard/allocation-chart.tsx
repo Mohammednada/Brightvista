@@ -1,12 +1,14 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
 import { useClickOutside } from "@/shared/hooks/use-click-outside";
 import { PieChart, Pie, Cell, Sector } from "recharts";
 import { allocationData, allocationMonths } from "@/mock/dashboard";
-
-const total = allocationData.reduce((s, d) => s + d.value, 0);
+import { useDashboardAnalytics } from "@/hooks/use-api";
 
 export function AllocationChart() {
+  const { data } = useDashboardAnalytics();
+  const chartData = data.allocation.length > 0 ? data.allocation : allocationData;
+  const total = useMemo(() => chartData.reduce((s, d) => s + d.value, 0), [chartData]);
   const [selectedMonth, setSelectedMonth] = useState("November");
   const [monthOpen, setMonthOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -69,7 +71,7 @@ export function AllocationChart() {
           <div className="relative" style={{ width: 326, height: 170 }}>
             <PieChart width={326} height={170}>
               <Pie
-                data={allocationData}
+                data={chartData}
                 cx="50%"
                 cy="100%"
                 startAngle={180}
@@ -94,7 +96,7 @@ export function AllocationChart() {
                 onMouseLeave={() => setActiveIndex(null)}
                 style={{ cursor: "pointer" }}
               >
-                {allocationData.map((entry, index) => (
+                {chartData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={entry.color}
@@ -109,12 +111,12 @@ export function AllocationChart() {
               <span
                 className="text-[16px] leading-[21px] text-text-primary transition-all duration-200 font-bold"
               >
-                {activeIndex !== null ? allocationData[activeIndex].value : total}
+                {activeIndex !== null ? chartData[activeIndex].value : total}
               </span>
               <span
                 className="text-[12px] leading-[18px] text-[#9caeb8] transition-all duration-200 font-medium"
               >
-                {activeIndex !== null ? allocationData[activeIndex].name : "Total"}
+                {activeIndex !== null ? chartData[activeIndex].name : "Total"}
               </span>
             </div>
           </div>
@@ -122,10 +124,10 @@ export function AllocationChart() {
           {/* Legend */}
           <div className="flex items-start justify-between w-full">
             {[
-              [allocationData[0], allocationData[4]],
-              [allocationData[1], allocationData[2]],
-              [allocationData[3], allocationData[5]],
-            ].map((group, gi) => (
+              [chartData[0], chartData[4]],
+              [chartData[1], chartData[2]],
+              [chartData[3], chartData[5]],
+            ].filter(g => g[0] && g[1]).map((group, gi) => (
               <div key={gi} className="flex flex-col gap-4">
                 {group.map((item) => (
                   <div key={item.name} className="flex items-center gap-2">
