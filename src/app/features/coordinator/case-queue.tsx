@@ -1,79 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-interface TaskItem {
-  id: string;
-  patient: string;
-  type: string;
-  priority: "urgent" | "high" | "medium" | "low";
-  status: "pending" | "in-review" | "awaiting-docs" | "approved" | "denied";
-  payer: string;
-  deadline: string;
-  department: string;
-}
-
-const myTasks: TaskItem[] = [
-  {
-    id: "PA-2024-1847",
-    patient: "Margaret Thompson",
-    type: "MRI - Lumbar Spine",
-    priority: "urgent",
-    status: "awaiting-docs",
-    payer: "BlueCross BlueShield",
-    deadline: "Feb 16, 2026",
-    department: "Orthopedics",
-  },
-  {
-    id: "PA-2024-1852",
-    patient: "Robert Chen",
-    type: "CT Scan - Chest",
-    priority: "high",
-    status: "in-review",
-    payer: "Aetna",
-    deadline: "Feb 17, 2026",
-    department: "Oncology",
-  },
-  {
-    id: "PA-2024-1839",
-    patient: "Lisa Rodriguez",
-    type: "Cardiac Catheterization",
-    priority: "high",
-    status: "pending",
-    payer: "United Healthcare",
-    deadline: "Feb 18, 2026",
-    department: "Cardiology",
-  },
-  {
-    id: "PA-2024-1861",
-    patient: "James Wilson",
-    type: "Physical Therapy - 12 Sessions",
-    priority: "medium",
-    status: "in-review",
-    payer: "Cigna",
-    deadline: "Feb 19, 2026",
-    department: "Orthopedics",
-  },
-  {
-    id: "PA-2024-1855",
-    patient: "Patricia Davis",
-    type: "Nerve Block Injection",
-    priority: "medium",
-    status: "pending",
-    payer: "Humana",
-    deadline: "Feb 20, 2026",
-    department: "Neurology",
-  },
-  {
-    id: "PA-2024-1868",
-    patient: "David Kim",
-    type: "Dermatology Biopsy",
-    priority: "low",
-    status: "approved",
-    payer: "Kaiser Permanente",
-    deadline: "Feb 22, 2026",
-    department: "Dermatology",
-  },
-];
+import { caseQueueTasks } from "@/mock/coordinator";
 
 const priorityStyles: Record<string, { bg: string; text: string; border: string }> = {
   urgent: { bg: "bg-[#fef2f2]", text: "text-[#d02241]", border: "border-[#fca5a5]" },
@@ -135,7 +62,7 @@ export function MyCaseQueue() {
           </div>
 
           {/* Table Rows */}
-          {myTasks.map((task, index) => {
+          {caseQueueTasks.map((task, index) => {
             const ps = priorityStyles[task.priority];
             const ss = statusStyles[task.status];
             return (
@@ -169,7 +96,7 @@ export function MyCaseQueue() {
                     {task.deadline}
                   </span>
                 </div>
-                {index < myTasks.length - 1 && <div className="h-px bg-border-default" />}
+                {index < caseQueueTasks.length - 1 && <div className="h-px bg-border-default" />}
               </div>
             );
           })}

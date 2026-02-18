@@ -1,19 +1,22 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, Lock } from "lucide-react";
+import { redirectPhases, redirectTimings } from "@/mock/new-case";
 
 export function EHRRedirectOverlay({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase(1), 1200);
-    const t2 = setTimeout(() => setPhase(2), 2600);
-    const t3 = setTimeout(() => {
-      setPhase(3);
-      onComplete();
-    }, 4000);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    const timers = redirectTimings.map((ms, i) =>
+      setTimeout(() => {
+        setPhase(i + 1);
+        if (i === redirectTimings.length - 1) onComplete();
+      }, ms)
+    );
+    return () => timers.forEach(clearTimeout);
   }, [onComplete]);
+
+  const isLast = phase === redirectPhases.length - 1;
 
   return (
     <motion.div
@@ -89,30 +92,12 @@ export function EHRRedirectOverlay({ onComplete }: { onComplete: () => void }) {
             transition={{ duration: 0.25 }}
             className="flex flex-col items-center gap-1.5"
           >
-            {phase === 0 && (
-              <>
-                <span className="text-white text-[14px] font-semibold">Redirecting to Epic EHR...</span>
-                <span className="text-white/50 text-[11px]">Establishing secure connection</span>
-              </>
-            )}
-            {phase === 1 && (
-              <>
-                <span className="text-white text-[14px] font-semibold">Authenticating session...</span>
-                <span className="text-white/50 text-[11px]">Verifying service credentials</span>
-              </>
-            )}
-            {phase === 2 && (
-              <>
-                <span className="text-white text-[14px] font-semibold">Redirecting back to NorthStar...</span>
-                <span className="text-white/50 text-[11px]">Session authorized successfully</span>
-              </>
-            )}
-            {phase === 3 && (
-              <>
-                <span className="text-[#4ade80] text-[14px] font-semibold">Connected</span>
-                <span className="text-white/50 text-[11px]">Starting EHR data extraction</span>
-              </>
-            )}
+            <span className={`text-[14px] font-semibold ${isLast ? "text-[#4ade80]" : "text-white"}`}>
+              {redirectPhases[phase].title}
+            </span>
+            <span className="text-white/50 text-[11px]">
+              {redirectPhases[phase].subtitle}
+            </span>
           </motion.div>
         </AnimatePresence>
 
@@ -120,8 +105,8 @@ export function EHRRedirectOverlay({ onComplete }: { onComplete: () => void }) {
         <div className="w-[240px] h-1 bg-white/10 rounded-full overflow-hidden">
           <motion.div
             className="h-full rounded-full"
-            style={{ backgroundColor: phase >= 3 ? "#4ade80" : "#4da8da" }}
-            animate={{ width: `${((phase + 1) / 4) * 100}%` }}
+            style={{ backgroundColor: isLast ? "#4ade80" : "#4da8da" }}
+            animate={{ width: `${((phase + 1) / redirectPhases.length) * 100}%` }}
             transition={{ duration: 0.5 }}
           />
         </div>

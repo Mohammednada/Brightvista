@@ -1,16 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Upload, CheckCircle, Camera, File } from "lucide-react";
+import { uploadOcrSteps, captureOcrSteps } from "@/mock/new-case";
 
 // ── Document Upload Zone ──────────────────────────────────────────────────────
-
-const uploadOcrSteps = [
-  "Analyzing document layout...",
-  "Detecting text regions...",
-  "Running OCR extraction...",
-  "Parsing patient demographics...",
-  "Validating extracted fields...",
-];
 
 export function DocumentUploadZone({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<"idle" | "selected" | "processing" | "done">("idle");
@@ -161,14 +154,6 @@ export function DocumentUploadZone({ onComplete }: { onComplete: () => void }) {
 }
 
 // ── Document Capture Zone ─────────────────────────────────────────────────────
-
-const captureOcrSteps = [
-  "Enhancing image quality...",
-  "Detecting document edges...",
-  "Running OCR text extraction...",
-  "Parsing patient information...",
-  "Validating extracted data...",
-];
 
 export function DocumentCaptureZone({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<"viewfinder" | "captured" | "processing" | "done">("viewfinder");

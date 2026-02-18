@@ -8,21 +8,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-
-const chartData = [
-  { period: "Jan-Feb", onTime: 17, delayed: 11, atRisk: 0 },
-  { period: "Mar-Apr", onTime: 12, delayed: 3, atRisk: 5 },
-  { period: "May-Jun", onTime: 8, delayed: 3, atRisk: 3 },
-  { period: "Jul-Aug", onTime: 15, delayed: 0, atRisk: 3 },
-  { period: "Sep-Oct", onTime: 12, delayed: 3, atRisk: 0 },
-  { period: "Nov-Dec", onTime: 6, delayed: 3, atRisk: 3 },
-];
-
-const legendItems = [
-  { color: "#00aeef", label: "On Time" },
-  { color: "#f3903f", label: "Delayed" },
-  { color: "#ff6467", label: "At Risk" },
-];
+import { authVolumeData, authVolumeLegend } from "@/mock/dashboard";
 
 export function AuthorizationVolume() {
   return (
@@ -46,7 +32,7 @@ export function AuthorizationVolume() {
 
       {/* Legend */}
       <div className="flex items-center justify-end gap-4">
-        {legendItems.map((item) => (
+        {authVolumeLegend.map((item) => (
           <div key={item.label} className="flex items-center gap-1.5">
             <div
               className="w-3 h-3 rounded"
@@ -64,7 +50,7 @@ export function AuthorizationVolume() {
       {/* Chart */}
       <div className="flex-1 min-h-[200px]" style={{ width: "100%" }}>
         <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-          <BarChart data={chartData} barSize={8} barGap={0}>
+          <BarChart data={authVolumeData} barSize={8} barGap={0}>
             <CartesianGrid
               strokeDasharray=""
               stroke="#C3D3DB"

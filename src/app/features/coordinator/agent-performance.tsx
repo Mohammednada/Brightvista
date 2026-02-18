@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Send,
   Phone,
@@ -9,82 +9,18 @@ import {
   MessageSquare,
   RefreshCw,
 } from "lucide-react";
+import { agentActions } from "@/mock/coordinator";
 
-interface AgentAction {
-  icon: React.ReactNode;
-  channel: string;
-  label: string;
-  count: number;
-  color: string;
-  bgColor: string;
-}
-
-const agentActions: AgentAction[] = [
-  {
-    icon: <Send size={15} />,
-    channel: "Through Payer Portal",
-    label: "Portal submissions",
-    count: 18,
-    color: "#3385f0",
-    bgColor: "#eaf3fd",
-  },
-  {
-    icon: <Phone size={15} />,
-    channel: "Through Voice Calls",
-    label: "IVR & live calls to payers",
-    count: 7,
-    color: "#096",
-    bgColor: "#ecfdf5",
-  },
-  {
-    icon: <ArrowRight size={15} />,
-    channel: "Through API's",
-    label: "Direct API submissions",
-    count: 12,
-    color: "#00aeef",
-    bgColor: "#e8f8fd",
-  },
-  {
-    icon: <FileText size={15} />,
-    channel: "Provider Messages",
-    label: "Doc update requests sent",
-    count: 9,
-    color: "#f2883f",
-    bgColor: "#fff7ed",
-  },
-  {
-    icon: <Upload size={15} />,
-    channel: "Auto-Attach",
-    label: "Clinical docs auto-attached",
-    count: 14,
-    color: "#8b5cf6",
-    bgColor: "#f5f3ff",
-  },
-  {
-    icon: <ScanSearch size={15} />,
-    channel: "Auth Scanning",
-    label: "Scanned for authorization",
-    count: 22,
-    color: "#0891b2",
-    bgColor: "#ecfeff",
-  },
-  {
-    icon: <MessageSquare size={15} />,
-    channel: "Follow-Ups",
-    label: "Automated follow-up messages",
-    count: 11,
-    color: "#d946ef",
-    bgColor: "#fdf4ff",
-  },
-  {
-    icon: <RefreshCw size={15} />,
-    channel: "Status Checks",
-    label: "Payer status verifications",
-    count: 16,
-    color: "#059669",
-    bgColor: "#ecfdf5",
-  },
-];
+const iconMap: Record<string, ReactNode> = {
+  Send: <Send size={15} />,
+  Phone: <Phone size={15} />,
+  ArrowRight: <ArrowRight size={15} />,
+  FileText: <FileText size={15} />,
+  Upload: <Upload size={15} />,
+  ScanSearch: <ScanSearch size={15} />,
+  MessageSquare: <MessageSquare size={15} />,
+  RefreshCw: <RefreshCw size={15} />,
+};
 
 export function AIAgentPerformance() {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
@@ -124,7 +60,7 @@ export function AIAgentPerformance() {
                 className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                 style={{ backgroundColor: action.bgColor, color: action.color }}
               >
-                {action.icon}
+                {iconMap[action.iconName]}
               </div>
               <span
                 className="text-[20px] leading-[26px] font-bold"

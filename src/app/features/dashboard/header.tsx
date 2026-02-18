@@ -1,4 +1,5 @@
 import navSvg from "@/assets/icons/nav-icon-paths";
+import { orgName } from "@/mock/shared";
 
 interface DashboardHeaderProps {
   isPanelOpen: boolean;
@@ -12,7 +13,7 @@ export function DashboardHeader({ isPanelOpen, onTogglePanel }: DashboardHeaderP
         <p
           className="text-[16px] text-[#1a1a1a] font-semibold"
         >
-          NorthStar Health Center
+          {orgName}
         </p>
         <div className="flex items-center gap-1">
           <button className="w-8 h-8 flex items-center justify-center rounded-[10px] hover:bg-[#f0f2f4] cursor-pointer">

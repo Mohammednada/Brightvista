@@ -1,47 +1,16 @@
-import React, { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Upload, Phone, Send, CheckCircle, FileText } from "lucide-react";
+import { coordActivities, caseStatusData } from "@/mock/coordinator";
 
 /* ===================== RECENT ACTIVITY TIMELINE ===================== */
 
-interface ActivityItem {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  time: string;
-}
-
-const coordActivities: ActivityItem[] = [
-  {
-    icon: <Upload size={16} className="text-[#3385F0]" />,
-    title: "Documentation Uploaded",
-    description: "Uploaded PT notes for Margaret Thompson's MRI auth...",
-    time: "Today \u00b7 10:45 AM",
-  },
-  {
-    icon: <Phone size={16} className="text-[#3385F0]" />,
-    title: "Payer Call Completed",
-    description: "Called Aetna regarding Robert Chen's CT scan review...",
-    time: "Today \u00b7 9:30 AM",
-  },
-  {
-    icon: <Send size={16} className="text-[#3385F0]" />,
-    title: "RFI Response Submitted",
-    description: "Submitted clinical notes for PA-2024-1839 to United...",
-    time: "Today \u00b7 8:15 AM",
-  },
-  {
-    icon: <CheckCircle size={16} className="text-[#3385F0]" />,
-    title: "Case Approved",
-    description: "David Kim's dermatology biopsy approved by Kaiser...",
-    time: "Yesterday \u00b7 4:50 PM",
-  },
-  {
-    icon: <FileText size={16} className="text-[#3385F0]" />,
-    title: "Appeal Letter Drafted",
-    description: "Prepared appeal for James Wilson's PT session denial...",
-    time: "Yesterday \u00b7 3:20 PM",
-  },
-];
+const activityIconMap: Record<string, ReactNode> = {
+  Upload: <Upload size={16} className="text-[#3385F0]" />,
+  Phone: <Phone size={16} className="text-[#3385F0]" />,
+  Send: <Send size={16} className="text-[#3385F0]" />,
+  CheckCircle: <CheckCircle size={16} className="text-[#3385F0]" />,
+  FileText: <FileText size={16} className="text-[#3385F0]" />,
+};
 
 export function CoordinatorRecentActivity() {
   return (
@@ -61,7 +30,7 @@ export function CoordinatorRecentActivity() {
         {coordActivities.map((activity, index) => (
           <div key={index} className="flex gap-4 pb-2">
             <div className="flex flex-col items-center shrink-0">
-              <div className="bg-[#eaf3fd] p-2 rounded-full">{activity.icon}</div>
+              <div className="bg-[#eaf3fd] p-2 rounded-full">{activityIconMap[activity.iconName]}</div>
               {index < coordActivities.length - 1 && <div className="w-px flex-1 bg-border-default mt-2 rounded" />}
             </div>
             <div className="flex-1 flex flex-col gap-2 pb-2 min-w-0">
@@ -85,14 +54,6 @@ export function CoordinatorRecentActivity() {
 }
 
 /* ===================== CASE STATUS DISTRIBUTION ===================== */
-
-const caseStatusData = [
-  { name: "In Review", value: 8, color: "#a1c7f8" },
-  { name: "Pending", value: 6, color: "#fad4b0" },
-  { name: "Awaiting Docs", value: 4, color: "#f3ccd4" },
-  { name: "Approved", value: 4, color: "#8ed3ba" },
-  { name: "Denied", value: 2, color: "#e17286" },
-];
 
 const caseStatusTotal = caseStatusData.reduce((s, d) => s + d.value, 0);
 

@@ -18,24 +18,13 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { TypeWriter } from "./chat-components";
-
-// ── EHR Steps ─────────────────────────────────────────────────────────────────
-
-interface EHRStep {
-  label: string;
-  url: string;
-  duration: number;
-}
-
-const ehrSteps: EHRStep[] = [
-  { label: "Opening Epic EHR System", url: "ehr.epic.northstarhealth.org", duration: 2200 },
-  { label: "Authenticating with service credentials", url: "ehr.epic.northstarhealth.org/auth/login", duration: 3000 },
-  { label: "Signed in successfully", url: "ehr.epic.northstarhealth.org/dashboard", duration: 2400 },
-  { label: "Navigating to Patient Search", url: "ehr.epic.northstarhealth.org/patients/search", duration: 2400 },
-  { label: "Searching for patient record", url: "ehr.epic.northstarhealth.org/patients/search?q=Margaret+Thompson", duration: 3200 },
-  { label: "Extracting patient details", url: "ehr.epic.northstarhealth.org/patients/88421", duration: 3000 },
-  { label: "Data extraction complete", url: "ehr.epic.northstarhealth.org/patients/88421", duration: 1500 },
-];
+import {
+  ehrSteps,
+  ehrLoadingSteps,
+  patientRecordFields,
+  ehrDashboardMetrics,
+  ehrRecentActivity,
+} from "@/mock/new-case";
 
 // ── Agent cursor ──────────────────────────────────────────────────────────────
 
@@ -156,8 +145,6 @@ function EHRLayout({
 }
 
 // ── EHR Screens ───────────────────────────────────────────────────────────────
-
-const ehrLoadingSteps = ["Resolving DNS...", "TLS handshake...", "Verifying certificate...", "Connection established"];
 
 function EHRScreenLoading() {
   const [step, setStep] = useState(0);
@@ -292,6 +279,13 @@ function EHRScreenLogin() {
   );
 }
 
+const dashboardMetricStyles: Record<string, { icon: typeof Users; color: string; bg: string }> = {
+  "Active Patients": { icon: Users, color: "#2563eb", bg: "#eff6ff" },
+  "Today's Appointments": { icon: Calendar, color: "#059669", bg: "#f0fdf4" },
+  "Pending Orders": { icon: ClipboardList, color: "#d97706", bg: "#fffbeb" },
+  "Alerts": { icon: Activity, color: "#dc2626", bg: "#fef2f2" },
+};
+
 function EHRScreenDashboard() {
   return (
     <EHRLayout activeNav={0} breadcrumbs={["Home", "Dashboard"]}>
@@ -307,30 +301,25 @@ function EHRScreenDashboard() {
           </motion.div>
         </div>
         <div className="grid grid-cols-4 gap-2 mb-3">
-          {[
-            { label: "Active Patients", value: "1,247", icon: Users, color: "#2563eb", bg: "#eff6ff" },
-            { label: "Today's Appointments", value: "64", icon: Calendar, color: "#059669", bg: "#f0fdf4" },
-            { label: "Pending Orders", value: "38", icon: ClipboardList, color: "#d97706", bg: "#fffbeb" },
-            { label: "Alerts", value: "5", icon: Activity, color: "#dc2626", bg: "#fef2f2" },
-          ].map(({ label, value, icon: Icon, color, bg }) => (
-            <div key={label} className="bg-white rounded-lg border border-[#eaedf2] p-2">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[7px] text-[#6b7c93] font-medium">{label}</span>
-                <div className="w-4 h-4 rounded flex items-center justify-center" style={{ backgroundColor: bg }}>
-                  <Icon size={8} style={{ color }} />
+          {ehrDashboardMetrics.map(({ label, value }) => {
+            const style = dashboardMetricStyles[label];
+            const Icon = style.icon;
+            return (
+              <div key={label} className="bg-white rounded-lg border border-[#eaedf2] p-2">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[7px] text-[#6b7c93] font-medium">{label}</span>
+                  <div className="w-4 h-4 rounded flex items-center justify-center" style={{ backgroundColor: style.bg }}>
+                    <Icon size={8} style={{ color: style.color }} />
+                  </div>
                 </div>
+                <span className="text-[14px] text-[#1a365d] font-bold">{value}</span>
               </div>
-              <span className="text-[14px] text-[#1a365d] font-bold">{value}</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <div className="bg-white rounded-lg border border-[#eaedf2] p-2">
           <span className="text-[9px] text-[#1a365d] block mb-1.5 font-semibold">Recent Activity</span>
-          {[
-            { text: "PA-2024-1847 status updated", time: "2m ago", color: "#2563eb" },
-            { text: "Lab results received \u2014 J. Parker", time: "15m ago", color: "#059669" },
-            { text: "New referral \u2014 Dr. Williams", time: "1h ago", color: "#d97706" },
-          ].map((item, i) => (
+          {ehrRecentActivity.map((item, i) => (
             <div key={i} className="flex items-center justify-between py-1 border-b border-[#f5f6f8] last:border-0">
               <div className="flex items-center gap-1.5">
                 <div className="w-1 h-1 rounded-full" style={{ backgroundColor: item.color }} />
@@ -455,17 +444,6 @@ function EHRScreenSearch() {
     </EHRLayout>
   );
 }
-
-const patientRecordFields = [
-  { label: "Full Name", value: "Margaret Thompson", section: "demographics" },
-  { label: "Date of Birth", value: "03/15/1958 (Age 67)", section: "demographics" },
-  { label: "MRN", value: "NHC-2024-88421", section: "demographics" },
-  { label: "Phone", value: "(860) 555-0147", section: "demographics" },
-  { label: "Insurance Payer", value: "BlueCross BlueShield", section: "insurance" },
-  { label: "Member ID", value: "BCB-447821953", section: "insurance" },
-  { label: "Plan Type", value: "PPO Gold", section: "insurance" },
-  { label: "Referring Physician", value: "Dr. Sarah Patel", section: "provider" },
-];
 
 function EHRScreenPatientRecord() {
   const [highlightedFields, setHighlightedFields] = useState<number[]>([]);

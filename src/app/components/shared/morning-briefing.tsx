@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+import { morningBriefing } from "@/mock/shared";
 
 export function MorningBriefing() {
   return (
@@ -15,13 +16,12 @@ export function MorningBriefing() {
         <p
           className="text-[16px] leading-[1.35] text-[#1a1a1a] capitalize font-semibold"
         >
-          Everything is Stable, But Imaging Risk is Emerging.
+          {morningBriefing.heading}
         </p>
         <p
           className="text-[14px] leading-[22.75px] text-[#737373] font-medium"
         >
-          Overall authorization flow is healthy. However, I've detected a trend
-          in Orthopedic MRI RFIs that may impact next week's surgery schedule.
+          {morningBriefing.description}
         </p>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, type ReactNode } from "react";
 import { useClickOutside } from "@/shared/hooks/use-click-outside";
 import {
   Phone,
@@ -7,6 +7,14 @@ import {
   Tag,
   ChevronDown,
 } from "lucide-react";
+import { recentActivities, timeRangeOptions } from "@/mock/dashboard";
+
+const iconMap: Record<string, ReactNode> = {
+  Phone: <Phone size={16} className="text-[#3385F0]" />,
+  Store: <Store size={16} className="text-[#3385F0]" />,
+  HelpCircle: <HelpCircle size={16} className="text-[#3385F0]" />,
+  Tag: <Tag size={16} className="text-[#3385F0]" />,
+};
 
 interface TimelineItemProps {
   icon: React.ReactNode;
@@ -52,44 +60,6 @@ function TimelineItem({
   );
 }
 
-const activities = [
-  {
-    icon: <Phone size={16} className="text-[#3385F0]" />,
-    title: "Outbound Payer Follow-Up Initiated",
-    description:
-      "The agent initiated an outbound call to the payer to...",
-    time: "Today · 9:12 AM",
-  },
-  {
-    icon: <Store size={16} className="text-[#3385F0]" />,
-    title: "RFI Response Packet Submitted",
-    description:
-      "The agent compiled and submitted additional clini...",
-    time: "Today · 10:04 AM",
-  },
-  {
-    icon: <HelpCircle size={16} className="text-[#3385F0]" />,
-    title: "Appeal Prepared and Filed",
-    description:
-      "The agent prepared an appeal packet for a deni...",
-    time: "Yesterday · 4:38 PM",
-  },
-  {
-    icon: <Tag size={16} className="text-[#3385F0]" />,
-    title: "Escalation Triggered for SLA Risk",
-    description:
-      "The agent escalated 3 Imaging prior authorizati...",
-    time: "Yesterday · 2:15 PM",
-  },
-  {
-    icon: <Tag size={16} className="text-[#3385F0]" />,
-    title: "Proactive Documentation Rule Applied",
-    description:
-      "Based on recent denial patterns, the agent en...",
-    time: "Yesterday · 11:42 AM",
-  },
-];
-
 export function AgentActivities() {
   const [timeRange, setTimeRange] = useState("Last 7 Days");
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -125,7 +95,7 @@ export function AgentActivities() {
           </button>
           {dropdownOpen && (
             <div className="absolute right-0 top-full mt-1 bg-white border border-border-default rounded-lg shadow-lg z-20 w-[140px]">
-              {["Last 7 Days", "Last 30 Days", "Last 90 Days"].map((r) => (
+              {timeRangeOptions.map((r) => (
                 <button
                   key={r}
                   onClick={() => {
@@ -148,11 +118,14 @@ export function AgentActivities() {
 
       {/* Timeline */}
       <div className="flex-1 overflow-hidden">
-        {activities.map((activity, index) => (
+        {recentActivities.map((activity, index) => (
           <TimelineItem
             key={index}
-            {...activity}
-            isLast={index === activities.length - 1}
+            icon={iconMap[activity.iconName]}
+            title={activity.title}
+            description={activity.description}
+            time={activity.time}
+            isLast={index === recentActivities.length - 1}
           />
         ))}
       </div>

@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import type { ActionOption, AgentEntry } from "./types";
 import { getNow } from "./types";
+import type { CaseBuilderAction } from "./state/case-builder-state";
+import { defaultDocumentRequirements, completedDocumentRequirements } from "@/mock/new-case";
 
 // ── Data source action options ────────────────────────────────────────────────
 
@@ -145,6 +147,32 @@ const newCaseEntries: AgentEntry[] = [
       label: "MRI Cervical Spine -- CPT 72141",
       prompt: "The procedure is MRI Cervical Spine, CPT code 72141. Dr. Patel is ordering it for cervical radiculopathy, ICD-10 M54.12.",
     },
+    stateUpdates: [
+      {
+        type: "SET_PATIENT_FIELDS",
+        payload: {
+          data: {
+            name: "Margaret Thompson",
+            dob: "03/15/1958",
+            mrn: "NHC-2024-88421",
+            insurancePayer: "BlueCross BlueShield",
+            memberId: "BCB-447821953",
+            planType: "PPO Gold",
+            referringPhysician: "Dr. Sarah Patel",
+          },
+          confidence: {
+            name: { source: "ehr", confidence: 98, verified: true, needsReview: false },
+            dob: { source: "ehr", confidence: 98, verified: true, needsReview: false },
+            mrn: { source: "ehr", confidence: 99, verified: true, needsReview: false },
+            insurancePayer: { source: "ehr", confidence: 97, verified: true, needsReview: false },
+            memberId: { source: "ehr", confidence: 97, verified: true, needsReview: false },
+            planType: { source: "ehr", confidence: 95, verified: true, needsReview: false },
+            referringPhysician: { source: "ehr", confidence: 96, verified: true, needsReview: false },
+          },
+        },
+      } satisfies CaseBuilderAction,
+      { type: "ADVANCE_STEP", payload: "procedure" } satisfies CaseBuilderAction,
+    ],
   },
   {
     match: (q) =>
@@ -177,6 +205,22 @@ const newCaseEntries: AgentEntry[] = [
       label: "Compile and submit the PA request",
       prompt: "Yes, compile all the documentation and submit the PA request to BCBS.",
     },
+    stateUpdates: [
+      {
+        type: "SET_PROCEDURE",
+        payload: {
+          cptCode: "72141",
+          cptDescription: "MRI Cervical Spine w/o Contrast",
+          icd10Code: "M54.12",
+          icd10Description: "Cervical Radiculopathy",
+          orderingPhysician: "Dr. Sarah Patel",
+          cptValid: true,
+          icd10Valid: true,
+        },
+      } satisfies CaseBuilderAction,
+      { type: "SET_DOCUMENTS", payload: completedDocumentRequirements } satisfies CaseBuilderAction,
+      { type: "ADVANCE_STEP", payload: "review" } satisfies CaseBuilderAction,
+    ],
   },
   {
     match: (q) =>
@@ -208,6 +252,9 @@ const newCaseEntries: AgentEntry[] = [
       label: "Create another PA case",
       prompt: "I need to create another new prior authorization case.",
     },
+    stateUpdates: [
+      { type: "MARK_SUBMITTED" } satisfies CaseBuilderAction,
+    ],
   },
   {
     match: (q) =>

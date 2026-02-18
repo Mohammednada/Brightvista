@@ -1,115 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
-
-interface Coordinator {
-  id: string;
-  name: string;
-  joinDate: string;
-  specialty: string;
-  cases: number;
-  casesColor: string;
-  caseBar: { color: string; width: number }[];
-  systemAccess: "Active" | "Inactive";
-  activityBars: number[];
-  activityPercent: string;
-}
-
-const coordinators: Coordinator[] = [
-  {
-    id: "160102",
-    name: "Rubeus Hagrid",
-    joinDate: "Joined at 2 Jan",
-    specialty: "Orthopedic",
-    cases: 12,
-    casesColor: "#f68d2a",
-    caseBar: [
-      { color: "#a1c7f8", width: 26 },
-      { color: "#8ed3ba", width: 32 },
-      { color: "#e17286", width: 8 },
-      { color: "#fbcb9d", width: 13 },
-      { color: "#fbcb9d", width: 18 },
-    ],
-    systemAccess: "Active",
-    activityBars: [1, 13, 10, 13, 10, 24, 20, 12, 19, 22, 14, 19],
-    activityPercent: "88%",
-  },
-  {
-    id: "140119",
-    name: "Sirius Black",
-    joinDate: "Joined at 2 Jan",
-    specialty: "Cardiology",
-    cases: 15,
-    casesColor: "#099f69",
-    caseBar: [
-      { color: "#e17286", width: 8 },
-      { color: "#a1c7f8", width: 20 },
-      { color: "#e17286", width: 8 },
-      { color: "#fbcb9d", width: 18 },
-      { color: "#e17286", width: 5 },
-    ],
-    systemAccess: "Active",
-    activityBars: [16, 12, 10, 9, 10, 3, 10, 17, 13, 19, 11, 11, 6],
-    activityPercent: "90%",
-  },
-  {
-    id: "744101",
-    name: "Neville Longbottom",
-    joinDate: "Joined at 2 Jan",
-    specialty: "Neurology",
-    cases: 18,
-    casesColor: "#099f69",
-    caseBar: [
-      { color: "#a1c7f8", width: 30 },
-      { color: "#8ed3ba", width: 20 },
-      { color: "#e17286", width: 10 },
-      { color: "#fbcb9d", width: 15 },
-      { color: "#fbcb9d", width: 22 },
-    ],
-    systemAccess: "Active",
-    activityBars: [1, 13, 10, 13, 10, 24, 20, 12, 19, 22, 14, 19],
-    activityPercent: "97%",
-  },
-  {
-    id: "790001",
-    name: "Fred Weasley",
-    joinDate: "Joined at 2 Jan",
-    specialty: "Oncology",
-    cases: 18,
-    casesColor: "#099f69",
-    caseBar: [
-      { color: "#a1c7f8", width: 26 },
-      { color: "#8ed3ba", width: 32 },
-      { color: "#e17286", width: 8 },
-      { color: "#fbcb9d", width: 13 },
-      { color: "#fbcb9d", width: 18 },
-    ],
-    systemAccess: "Active",
-    activityBars: [1, 13, 10, 13, 10, 24, 20, 12, 19, 22, 14, 19],
-    activityPercent: "90%",
-  },
-  {
-    id: "781001",
-    name: "Arthur Weasley",
-    joinDate: "Joined at 2 Jan",
-    specialty: "Dermatology",
-    cases: 2,
-    casesColor: "#d02241",
-    caseBar: [
-      { color: "#e17286", width: 9 },
-      { color: "#a1c7f8", width: 24 },
-      { color: "#e17286", width: 7 },
-      { color: "#fbcb9d", width: 13 },
-      { color: "#fbcb9d", width: 18 },
-    ],
-    systemAccess: "Active",
-    activityBars: [24, 7, 8, 4, 1, 23, 7, 17, 1, 6, 19, 20],
-    activityPercent: "50%",
-  },
-];
+import { coordinators, coordinatorColorLabels } from "@/mock/dashboard";
 
 const stickyIdWidth = 72;
 const stickyNameWidth = 160;
-const stickyTotalWidth = stickyIdWidth + stickyNameWidth;
 
 function StickyIdCell({
   children,
@@ -326,12 +220,6 @@ export function ActiveCoordinators() {
                     </span>
                     <div className="flex items-center rounded-lg overflow-visible bg-surface-bg border border-white h-2">
                       {(() => {
-                        const colorLabels: Record<string, string> = {
-                          "#a1c7f8": "Pending",
-                          "#8ed3ba": "Approved",
-                          "#e17286": "Denied",
-                          "#fbcb9d": "In Review",
-                        };
                         const totalWidth = coord.caseBar.reduce(
                           (sum, b) => sum + b.width,
                           0
@@ -344,7 +232,7 @@ export function ActiveCoordinators() {
                             )
                           );
                           const label =
-                            colorLabels[bar.color] || "Other";
+                            coordinatorColorLabels[bar.color] || "Other";
                           return (
                             <div
                               key={i}

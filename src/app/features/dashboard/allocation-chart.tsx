@@ -2,32 +2,9 @@ import { useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { useClickOutside } from "@/shared/hooks/use-click-outside";
 import { PieChart, Pie, Cell, Sector } from "recharts";
+import { allocationData, allocationMonths } from "@/mock/dashboard";
 
-const data = [
-  { name: "Orthopedics", value: 142, color: "#a1c7f8" },
-  { name: "Cardiology", value: 46, color: "#d0e3fb" },
-  { name: "Neurology", value: 32, color: "#90d6ec" },
-  { name: "Imaging", value: 46, color: "#fad4b0" },
-  { name: "Oncology", value: 82, color: "#8ed3ba" },
-  { name: "Dermatology", value: 46, color: "#f3ccd4" },
-];
-
-const total = data.reduce((s, d) => s + d.value, 0);
-
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+const total = allocationData.reduce((s, d) => s + d.value, 0);
 
 export function AllocationChart() {
   const [selectedMonth, setSelectedMonth] = useState("November");
@@ -66,7 +43,7 @@ export function AllocationChart() {
             </button>
             {monthOpen && (
               <div className="absolute right-0 top-full mt-1 bg-white border border-border-default rounded-lg shadow-lg z-20 w-[140px] max-h-[200px] overflow-y-auto">
-                {months.map((m) => (
+                {allocationMonths.map((m) => (
                   <button
                     key={m}
                     onClick={() => {
@@ -92,7 +69,7 @@ export function AllocationChart() {
           <div className="relative" style={{ width: 326, height: 170 }}>
             <PieChart width={326} height={170}>
               <Pie
-                data={data}
+                data={allocationData}
                 cx="50%"
                 cy="100%"
                 startAngle={180}
@@ -117,7 +94,7 @@ export function AllocationChart() {
                 onMouseLeave={() => setActiveIndex(null)}
                 style={{ cursor: "pointer" }}
               >
-                {data.map((entry, index) => (
+                {allocationData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={entry.color}
@@ -132,12 +109,12 @@ export function AllocationChart() {
               <span
                 className="text-[16px] leading-[21px] text-text-primary transition-all duration-200 font-bold"
               >
-                {activeIndex !== null ? data[activeIndex].value : total}
+                {activeIndex !== null ? allocationData[activeIndex].value : total}
               </span>
               <span
                 className="text-[12px] leading-[18px] text-[#9caeb8] transition-all duration-200 font-medium"
               >
-                {activeIndex !== null ? data[activeIndex].name : "Total"}
+                {activeIndex !== null ? allocationData[activeIndex].name : "Total"}
               </span>
             </div>
           </div>
@@ -145,9 +122,9 @@ export function AllocationChart() {
           {/* Legend */}
           <div className="flex items-start justify-between w-full">
             {[
-              [data[0], data[4]],
-              [data[1], data[2]],
-              [data[3], data[5]],
+              [allocationData[0], allocationData[4]],
+              [allocationData[1], allocationData[2]],
+              [allocationData[3], allocationData[5]],
             ].map((group, gi) => (
               <div key={gi} className="flex flex-col gap-4">
                 {group.map((item) => (

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Info } from "lucide-react";
+import { recommendedAction } from "@/mock/shared";
 
 export function RecommendedAction() {
   const [approved, setApproved] = useState(false);
@@ -17,13 +18,13 @@ export function RecommendedAction() {
           <span
             className="text-[10px] leading-[15px] tracking-[1px] uppercase text-[#00aeef] font-bold"
           >
-            Intervention Needed
+            {recommendedAction.label}
           </span>
         </div>
         <p
           className="text-[14px] leading-[24.375px] text-white font-medium"
         >
-          Escalate Imaging RFIs older than 48 hours to prevent surgical delays.
+          {recommendedAction.recommendation}
         </p>
         <button
           onClick={() => setApproved(!approved)}
@@ -33,7 +34,7 @@ export function RecommendedAction() {
               : "bg-[#00aeef] hover:bg-[#009bd6]"
           }`}
         >
-          {approved ? "Escalation Approved" : "Approve Escalation"}
+          {approved ? "Escalation Approved" : recommendedAction.buttonLabel}
         </button>
         <button
           className="w-full bg-[#35556f] rounded-lg px-2.5 py-1.5 text-center font-['Ubuntu',sans-serif] text-[14px] leading-[20px] text-white cursor-pointer hover:bg-[#2d4960] font-medium"

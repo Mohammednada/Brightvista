@@ -34,6 +34,7 @@ export interface AgentEntry {
   nextAction: { label: string; prompt: string };
   actionOptions?: ActionOption[];
   specialContent?: "ehr-consent" | "ehr-agent" | "upload-zone" | "capture-zone";
+  stateUpdates?: import("@/app/features/new-case/state/case-builder-state").CaseBuilderAction[];
 }
 
 // ── KPI ───────────────────────────────────────────────────────────────────────
@@ -60,6 +61,80 @@ export interface NotificationCardProps {
   recommendation: string;
   meta: string;
   onAskAgent?: (text: string) => void;
+}
+
+// ── Mock data types ──────────────────────────────────────────────────────────
+
+export interface KpiData {
+  value: string;
+  label: string;
+  change: string;
+  changeLabel: string;
+  changeType: "up" | "down";
+  valueColor?: string;
+  barChart?: boolean;
+  askAgentQuery?: string;
+}
+
+export interface Coordinator {
+  id: string;
+  name: string;
+  joinDate: string;
+  specialty: string;
+  cases: number;
+  casesColor: string;
+  caseBar: { color: string; width: number }[];
+  systemAccess: "Active" | "Inactive";
+  activityBars: number[];
+  activityPercent: string;
+}
+
+export interface TaskItem {
+  id: string;
+  patient: string;
+  type: string;
+  priority: "urgent" | "high" | "medium" | "low";
+  status: string;
+  payer: string;
+  deadline: string;
+  department: string;
+}
+
+// ── Mock data types ──────────────────────────────────────────────────────────
+
+export interface KpiData {
+  value: string;
+  label: string;
+  change: string;
+  changeLabel: string;
+  changeType: "up" | "down";
+  valueColor?: string;
+  barChart?: boolean;
+  askAgentQuery?: string;
+}
+
+export interface Coordinator {
+  id: string;
+  name: string;
+  joinDate: string;
+  specialty: string;
+  cases: number;
+  casesColor: string;
+  caseBar: { color: string; width: number }[];
+  systemAccess: "Active" | "Inactive";
+  activityBars: number[];
+  activityPercent: string;
+}
+
+export interface TaskItem {
+  id: string;
+  patient: string;
+  type: string;
+  priority: "urgent" | "high" | "medium" | "low";
+  status: string;
+  payer: string;
+  deadline: string;
+  department: string;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

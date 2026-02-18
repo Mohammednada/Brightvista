@@ -1,6 +1,7 @@
 import { ArrowUp, ArrowDown, Sparkles } from "lucide-react";
 import { useState } from "react";
 import type { KpiItemProps } from "@/shared/types";
+import { barChartHeights, barChartOpacities } from "@/mock/shared";
 
 export function KpiItem({
   value,
@@ -92,13 +93,13 @@ function BarChartIndicator({ changeLabel }: { changeLabel: string }) {
   return (
     <>
       <div className="flex items-center gap-[2px] opacity-80 w-[59px]">
-        {[20, 11, 2.76, 14, 20, 17, 7.4, 12].map((h, i) => (
+        {barChartHeights.map((h, i) => (
           <div
             key={i}
             className="w-[4px] rounded-full bg-[#97a6b4]"
             style={{
               height: `${h}px`,
-              opacity: [0.6, 0.6, 0.6, 0.4, 1, 0.6, 0.6, 0.8][i],
+              opacity: barChartOpacities[i],
             }}
           />
         ))}
