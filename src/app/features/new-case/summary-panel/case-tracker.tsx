@@ -8,7 +8,7 @@ interface CaseTrackerProps {
 
 export function CaseTracker({ steps }: CaseTrackerProps) {
   return (
-    <div className="px-5 pb-4">
+    <div className="px-5 pt-3 pb-2">
       <span className="text-[10px] font-semibold text-text-muted uppercase tracking-wider block mb-2.5">
         Case Tracker
       </span>

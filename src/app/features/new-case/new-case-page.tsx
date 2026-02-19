@@ -46,6 +46,7 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
     const [waitingForReview, setWaitingForReview] = useState(false);
     const [waitingForRpaConsent, setWaitingForRpaConsent] = useState(false);
     const [selectedChannel, setSelectedChannel] = useState<SubmissionChannel | null>(null);
+    const currentPhasesRef = useRef<AgentStepsPhase[]>([]);
 
     // Case builder state
     const { state: caseState, dispatch: caseDispatch, dispatchActions } = useCaseBuilder();
@@ -114,6 +115,7 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
 
       // Start phase 1 using desktop panel
       setTimeout(() => {
+        currentPhasesRef.current = [phase1_scanEHR];
         setActivePhase(phase1_scanEHR);
         addAgentMessage("", { agentDesktopPhases: [phase1_scanEHR] });
       }, 400);
@@ -123,6 +125,12 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
       // Dispatch state updates from the completed phase
       if (completedPhase.onCompleteActions.length > 0) {
         dispatchActions(completedPhase.onCompleteActions);
+      }
+      // Advance activePhase to the next phase in the group
+      const phases = currentPhasesRef.current;
+      const idx = phases.findIndex((p) => p.phaseId === completedPhase.phaseId);
+      if (idx >= 0 && idx < phases.length - 1) {
+        setActivePhase(phases[idx + 1]);
       }
     }, [dispatchActions]);
 
@@ -171,6 +179,7 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
           `Starting autonomous PA workflow for **${order.patientName}** — ${order.procedure} (CPT ${order.cptCode}).\nDiagnosis: ${order.diagnosis} (${order.icd10Code}). Payer: **${order.payer}** — Submission channel: **${channelLabel}**. I'll handle everything from here.`,
         );
         setTimeout(() => {
+          currentPhasesRef.current = autonomousPhases;
           setActivePhase(autonomousPhases[0]);
           addAgentMessage("", { agentDesktopPhases: autonomousPhases });
         }, 600);
@@ -200,12 +209,14 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
         }, 500);
       } else if (selectedChannel === "voice") {
         setTimeout(() => {
+          currentPhasesRef.current = submissionPhasesVoice;
           setActivePhase(submissionPhasesVoice[0]);
           addAgentMessage("", { agentDesktopPhases: submissionPhasesVoice });
         }, 500);
       } else {
         // Default: API
         setTimeout(() => {
+          currentPhasesRef.current = submissionPhasesApi;
           setActivePhase(submissionPhasesApi[0]);
           addAgentMessage("", { agentDesktopPhases: submissionPhasesApi });
         }, 500);
@@ -225,6 +236,7 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
 
       // Launch RPA submission phases
       setTimeout(() => {
+        currentPhasesRef.current = submissionPhasesRpa;
         setActivePhase(submissionPhasesRpa[0]);
         addAgentMessage("", { agentDesktopPhases: submissionPhasesRpa });
       }, 500);
@@ -592,7 +604,13 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
         {/* Right column — Summary Panel */}
         <AnimatePresence>
           {showSummaryPanel && (
-            <CaseSummaryPanel state={caseState} dispatch={caseDispatch} />
+            <CaseSummaryPanel
+              state={caseState}
+              dispatch={caseDispatch}
+              activePhaseId={activePhase?.phaseId ?? null}
+              agentModeActive={agentModeActive}
+              selectedChannel={selectedChannel}
+            />
           )}
         </AnimatePresence>
       </div>

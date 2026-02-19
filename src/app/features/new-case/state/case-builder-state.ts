@@ -71,6 +71,17 @@ export interface StepState {
   status: StepStatus;
 }
 
+// ── Submission Details ───────────────────────────────────────────────────────
+
+import type { SubmissionChannel } from "@/shared/types";
+
+export interface SubmissionDetails {
+  trackingId: string;
+  channel: SubmissionChannel;
+  submittedAt: string;
+  expectedResponse: string;
+}
+
 // ── Case Builder State ───────────────────────────────────────────────────────
 
 export type CaseStatus = "draft" | "in-progress" | "submitted";
@@ -86,6 +97,7 @@ export interface CaseBuilderState {
   documents: DocumentRequirement[];
   approvalLikelihood: number;
   approvalFactors: ApprovalFactor[];
+  submissionDetails?: SubmissionDetails;
 }
 
 // ── Actions ──────────────────────────────────────────────────────────────────
@@ -99,6 +111,7 @@ export type CaseBuilderAction =
   | { type: "ADVANCE_STEP"; payload: StepId }
   | { type: "GO_TO_STEP"; payload: StepId }
   | { type: "MARK_SUBMITTED" }
+  | { type: "SET_SUBMISSION_DETAILS"; payload: SubmissionDetails }
   | { type: "SAVE_DRAFT" }
   | { type: "RESET" };
 
@@ -211,6 +224,13 @@ function caseBuilderReducer(state: CaseBuilderState, action: CaseBuilderAction):
         ...state,
         status: "submitted",
         currentStep: "submit",
+      };
+      break;
+    }
+    case "SET_SUBMISSION_DETAILS": {
+      next = {
+        ...state,
+        submissionDetails: action.payload,
       };
       break;
     }

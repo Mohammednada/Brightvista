@@ -1,5 +1,5 @@
 import type { AgentStepsPhase, OrderCardData } from "@/shared/types";
-import type { CaseBuilderAction } from "@/app/features/new-case/state/case-builder-state";
+import type { CaseBuilderAction, SubmissionDetails } from "@/app/features/new-case/state/case-builder-state";
 import { completedDocumentRequirements } from "./new-case";
 
 // ── Order cards shown after EHR scan ────────────────────────────────────────
@@ -299,6 +299,15 @@ export const phase_submitApi: AgentStepsPhase = {
   ],
   onCompleteActions: [
     { type: "MARK_SUBMITTED" } satisfies CaseBuilderAction,
+    {
+      type: "SET_SUBMISSION_DETAILS",
+      payload: {
+        trackingId: "BCBS-2026-0215-4721",
+        channel: "api",
+        submittedAt: new Date().toISOString(),
+        expectedResponse: "3-5 business days",
+      } satisfies SubmissionDetails,
+    } satisfies CaseBuilderAction,
   ],
 };
 
@@ -323,7 +332,18 @@ export const phase_submitVoice: AgentStepsPhase = {
     { label: "Navigating IVR prompts", duration: 10000, thinkingText: "Navigating IVR menu tree — selecting Prior Authorization → New Request → Provider submission..." },
     { label: "Call complete — reference received", duration: 6000, thinkingText: "PA details transmitted via voice — reference number UHC-PA-2026-84521 confirmed — call duration 3:42..." },
   ],
-  onCompleteActions: [],
+  onCompleteActions: [
+    { type: "MARK_SUBMITTED" } satisfies CaseBuilderAction,
+    {
+      type: "SET_SUBMISSION_DETAILS",
+      payload: {
+        trackingId: "UHC-PA-2026-84521",
+        channel: "voice",
+        submittedAt: new Date().toISOString(),
+        expectedResponse: "5-7 business days",
+      } satisfies SubmissionDetails,
+    } satisfies CaseBuilderAction,
+  ],
 };
 
 // ── RPA Submission phase (Aetna — James Rodriguez) ──────────────────────────
@@ -349,7 +369,18 @@ export const phase_submitRpa: AgentStepsPhase = {
     { label: "Uploading documents", duration: 9000, thinkingText: "Uploading clinical documentation — CT indication notes, labs, and referral letter — verifying file integrity..." },
     { label: "Submission confirmed", duration: 5500, thinkingText: "Aetna PA request submitted — reference number AET-PA-2026-33108 — expected response in 5-7 business days..." },
   ],
-  onCompleteActions: [],
+  onCompleteActions: [
+    { type: "MARK_SUBMITTED" } satisfies CaseBuilderAction,
+    {
+      type: "SET_SUBMISSION_DETAILS",
+      payload: {
+        trackingId: "AET-PA-2026-33108",
+        channel: "rpa",
+        submittedAt: new Date().toISOString(),
+        expectedResponse: "5-7 business days",
+      } satisfies SubmissionDetails,
+    } satisfies CaseBuilderAction,
+  ],
 };
 
 // Phase 12 — Send patient notification (~7s)
@@ -395,14 +426,14 @@ export const phase13_checkStatus: AgentStepsPhase = {
     { type: "ADVANCE_STEP", payload: "check-status" } satisfies CaseBuilderAction,
   ],
   followUpMessage:
-    "**PA Case Complete!** Here's the summary:\n\n" +
-    "* **Case ID:** PA-2026-0215\n" +
-    "* **Patient:** Margaret Thompson (MRN: NHC-2024-88421)\n" +
-    "* **Procedure:** MRI Cervical Spine (CPT 72141)\n" +
-    "* **Diagnosis:** Cervical Radiculopathy (M54.12)\n" +
-    "* **Status:** Under Review\n" +
-    "* **Expected Decision:** 3-5 business days\n" +
-    "* **Approval Likelihood:** 92%\n\n" +
+    "PA Case Complete! Here's the summary:\n\n" +
+    "• Case ID: PA-2026-0215\n" +
+    "• Patient: Margaret Thompson (MRN: NHC-2024-88421)\n" +
+    "• Procedure: MRI Cervical Spine (CPT 72141)\n" +
+    "• Diagnosis: Cervical Radiculopathy (M54.12)\n" +
+    "• Status: Under Review\n" +
+    "• Expected Decision: 3-5 business days\n" +
+    "• Approval Likelihood: 92%\n\n" +
     "I've set up auto-monitoring and will notify you of any status changes or RFIs. The case is now in your active queue.",
 };
 

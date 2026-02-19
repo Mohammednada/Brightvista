@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "motion/react";
 import {
   CheckCircle, FileText, Shield, Terminal, MessageSquare,
-  Send, Zap, Clock, Bell, Phone, Globe,
+  Send, Zap, Clock, Bell, Phone, Globe, Play, Pause,
 } from "lucide-react";
 import { TypeWriter } from "../chat-components";
 import { SYSTEM_THEMES } from "./themes";
@@ -628,6 +628,97 @@ function SubmitScreen({ screenIndex }: { screenIndex: number }) {
 // Phase 12: Patient Notify
 // ═══════════════════════════════════════════════════════════════════════════════
 
+function NotifySendingAnimation() {
+  const channels = [
+    { label: "SMS", detail: "(860) 555-0147", icon: MessageSquare, delay: 0 },
+    { label: "MyChart Portal", detail: "Patient portal update", icon: Bell, delay: 1.8 },
+  ];
+
+  return (
+    <div className="h-[280px] bg-[#f7fafc] flex flex-col items-center justify-center px-8 overflow-hidden">
+      {/* Animated envelope launching */}
+      <motion.div
+        className="mb-6"
+        initial={{ y: 0, scale: 1 }}
+        animate={{ y: -120, scale: 0.3, opacity: 0 }}
+        transition={{ duration: 1.2, delay: 0.3, ease: "easeIn" }}
+      >
+        <div className="w-12 h-12 rounded-2xl bg-[#1F425F] flex items-center justify-center shadow-lg">
+          <Send size={20} className="text-white" />
+        </div>
+      </motion.div>
+
+      {/* Channel delivery rows */}
+      <div className="flex flex-col gap-3 w-full max-w-[260px] -mt-8">
+        {channels.map((ch) => (
+          <NotifyChannelRow key={ch.label} channel={ch} />
+        ))}
+      </div>
+
+      <motion.span
+        className="text-[10px] text-[#8b95a5] mt-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8 }}
+      >
+        Delivering to patient...
+      </motion.span>
+    </div>
+  );
+}
+
+function NotifyChannelRow({ channel }: { channel: { label: string; detail: string; icon: typeof MessageSquare; delay: number } }) {
+  const [phase, setPhase] = useState<"waiting" | "sending" | "done">("waiting");
+  const Icon = channel.icon;
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase("sending"), channel.delay * 1000 + 600);
+    const t2 = setTimeout(() => setPhase("done"), channel.delay * 1000 + 2200);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [channel.delay]);
+
+  return (
+    <motion.div
+      className="flex items-center gap-3"
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: channel.delay * 0.5 + 0.5, duration: 0.4 }}
+    >
+      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors duration-300 ${
+        phase === "done" ? "bg-[#099F69]" : "bg-[#1F425F]"
+      }`}>
+        {phase === "done" ? (
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 300 }}>
+            <CheckCircle size={13} className="text-white" />
+          </motion.div>
+        ) : (
+          <Icon size={13} className="text-white" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] text-[#1a365d] font-semibold">{channel.label}</span>
+          <span className={`text-[8px] font-medium transition-colors duration-300 ${
+            phase === "done" ? "text-[#099F69]" : phase === "sending" ? "text-[#4da8da]" : "text-[#8b95a5]"
+          }`}>
+            {phase === "done" ? "Delivered" : phase === "sending" ? "Sending..." : "Queued"}
+          </span>
+        </div>
+        <span className="text-[8px] text-[#8b95a5] block">{channel.detail}</span>
+        {/* Progress bar */}
+        <div className="h-[3px] rounded-full bg-[#e5e8ee] mt-1 overflow-hidden">
+          <motion.div
+            className={`h-full rounded-full ${phase === "done" ? "bg-[#099F69]" : "bg-[#4da8da]"}`}
+            initial={{ width: "0%" }}
+            animate={{ width: phase === "waiting" ? "0%" : phase === "sending" ? "70%" : "100%" }}
+            transition={{ duration: phase === "sending" ? 1.2 : 0.4, ease: "easeOut" }}
+          />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function NotifyScreen({ screenIndex }: { screenIndex: number }) {
   // Screen 0: Composing message with typewriter
   if (screenIndex === 0) {
@@ -651,52 +742,9 @@ function NotifyScreen({ screenIndex }: { screenIndex: number }) {
       </div>
     );
   }
-  // Screen 1: Sending animation — messages flying out
+  // Screen 1: Sending animation — progress channels
   if (screenIndex === 1) {
-    return (
-      <div className="h-[280px] bg-[#f7fafc] flex flex-col items-center justify-center gap-4 overflow-hidden relative">
-        {/* Ripple rings */}
-        {[0, 0.6, 1.2].map((delay, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-16 h-16 rounded-full border border-[#4da8da]/30"
-            initial={{ scale: 0.5, opacity: 0.8 }}
-            animate={{ scale: 3.5, opacity: 0 }}
-            transition={{ duration: 2, delay, repeat: Infinity, ease: "easeOut" }}
-          />
-        ))}
-
-        {/* SMS flying out */}
-        <motion.div
-          className="relative z-10"
-          initial={{ y: 0, scale: 1 }}
-          animate={{ y: [-4, 4, -4] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <div className="w-12 h-12 rounded-full bg-[#1F425F] flex items-center justify-center shadow-lg">
-            <Send size={20} className="text-white" />
-          </div>
-        </motion.div>
-
-        {/* Flying message cards */}
-        {[
-          { label: "SMS", delay: 0.3, x: -80, y: -60 },
-          { label: "MyChart", delay: 1.0, x: 80, y: -50 },
-        ].map((msg) => (
-          <motion.div
-            key={msg.label}
-            className="absolute z-10 bg-white rounded-lg px-3 py-1.5 shadow-md border border-[#e5e8ee]"
-            initial={{ opacity: 1, x: 0, y: 20, scale: 0.8 }}
-            animate={{ opacity: [1, 1, 0], x: msg.x, y: msg.y, scale: [0.8, 1, 0.6] }}
-            transition={{ duration: 1.8, delay: msg.delay, repeat: Infinity, repeatDelay: 1 }}
-          >
-            <span className="text-[8px] text-[#1F425F] font-semibold">{msg.label}</span>
-          </motion.div>
-        ))}
-
-        <span className="text-[11px] text-[#1a365d] font-medium relative z-10 mt-2">Sending notifications...</span>
-      </div>
-    );
+    return <NotifySendingAnimation />;
   }
   // Screen 2: All delivered
   return (
@@ -937,66 +985,214 @@ function ApiSubmitScreen({ screenIndex }: { screenIndex: number }) {
 // Voice Submit Screen (UHC — Activity Steps IVR)
 // ═══════════════════════════════════════════════════════════════════════════════
 
+function CallAvatarBadge({ label, color, pulse = false }: { label: string; color: string; pulse?: boolean }) {
+  return (
+    <div className="relative flex items-center justify-center">
+      {pulse && (
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          style={{ background: color }}
+          animate={{ scale: [1, 1.6], opacity: [0.4, 0] }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: "easeOut" }}
+        />
+      )}
+      <div className="w-[18px] h-[18px] rounded-full flex items-center justify-center" style={{ background: color }}>
+        <span className="text-[6px] text-white font-bold leading-none">{label}</span>
+      </div>
+    </div>
+  );
+}
+
+const TRANSCRIPT_LINES: { speaker: "agent" | "ivr"; text: string }[] = [
+  { speaker: "agent", text: "Requesting prior authorization for CPT 62323, Lumbar Epidural Steroid Injection." },
+  { speaker: "ivr",   text: "Member ID please." },
+  { speaker: "agent", text: "Member ID UHC-8847291." },
+  { speaker: "ivr",   text: "Verified. Patient Linda Nakamura. Please provide diagnosis code." },
+  { speaker: "agent", text: "ICD-10 M54.17, Lumbar Radiculopathy." },
+  { speaker: "ivr",   text: "Authorization request received. Reference UHC-PA-2026-84521. Review in 5-7 business days." },
+  { speaker: "agent", text: "Confirmed. Thank you." },
+];
+
+function LiveTranscript() {
+  const [visibleCount, setVisibleCount] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (visibleCount >= TRANSCRIPT_LINES.length) return;
+    const timer = setTimeout(() => setVisibleCount((c) => c + 1), visibleCount === 0 ? 600 : 1600);
+    return () => clearTimeout(timer);
+  }, [visibleCount]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [visibleCount]);
+
+  return (
+    <div ref={scrollRef} className="h-full overflow-y-auto px-3 space-y-1.5 scrollbar-none">
+      {TRANSCRIPT_LINES.slice(0, visibleCount).map((line, i) => {
+        const isAgent = line.speaker === "agent";
+        const isLatest = i === visibleCount - 1;
+        return (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className={`flex items-start gap-1.5 ${isAgent ? "" : "flex-row-reverse"}`}
+          >
+            <CallAvatarBadge
+              label={isAgent ? "NS" : "UHC"}
+              color={isAgent ? "#002677" : "#FF612B"}
+              pulse={isLatest}
+            />
+            <div
+              className={`max-w-[75%] rounded-md px-2 py-1 ${isAgent ? "bg-white/10 text-white/90" : "bg-[#FF612B]/20 text-white/90"}`}
+            >
+              <span className="text-[7px] leading-snug block">{line.text}</span>
+            </div>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
+function AudioWaveformPlayer() {
+  const BAR_COUNT = 18;
+  const barHeights = useRef(Array.from({ length: BAR_COUNT }, () => 12 + Math.random() * 16)).current;
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const togglePlay = useCallback(() => {
+    if (playing) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      setPlaying(false);
+    } else {
+      setProgress(0);
+      setPlaying(true);
+      const start = Date.now();
+      intervalRef.current = setInterval(() => {
+        const elapsed = (Date.now() - start) / 8000;
+        if (elapsed >= 1) {
+          setProgress(1);
+          setPlaying(false);
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        } else {
+          setProgress(elapsed);
+        }
+      }, 50);
+    }
+  }, [playing]);
+
+  useEffect(() => {
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, []);
+
+  const elapsed = Math.floor(progress * 222);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  const timeStr = `${mins}:${secs.toString().padStart(2, "0")}`;
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg mx-3">
+      <button onClick={togglePlay} className="w-[22px] h-[22px] rounded-full bg-[#FF612B] flex items-center justify-center flex-shrink-0">
+        {playing ? <Pause size={9} className="text-white" /> : <Play size={9} className="text-white ml-[1px]" />}
+      </button>
+      <div className="flex-1 flex flex-col gap-1">
+        <div className="flex items-end gap-[2px] h-[20px]">
+          {barHeights.map((h, i) => {
+            const barProgress = i / BAR_COUNT;
+            const isActive = barProgress <= progress;
+            return (
+              <motion.div
+                key={i}
+                className="w-[2px] rounded-full"
+                style={{ background: isActive ? "#FF612B" : "rgba(255,255,255,0.15)" }}
+                animate={playing ? { height: [h * 0.5, h, h * 0.7, h * 0.9, h * 0.5] } : { height: h }}
+                transition={playing ? { duration: 0.6, repeat: Infinity, repeatType: "mirror", delay: i * 0.04 } : { duration: 0.3 }}
+              />
+            );
+          })}
+        </div>
+        <div className="w-full h-[2px] bg-white/10 rounded-full overflow-hidden">
+          <motion.div className="h-full bg-[#FF612B] rounded-full" style={{ width: `${progress * 100}%` }} />
+        </div>
+      </div>
+      <span className="text-[7px] text-white/50 tabular-nums flex-shrink-0">{timeStr} / 3:42</span>
+    </div>
+  );
+}
+
 function VoiceSubmitScreen({ screenIndex }: { screenIndex: number }) {
   if (screenIndex === 0) {
     return <SystemTransitionScreen fromSystem="northstar-pa" toSystem="uhc-voice" summaryText="PA form complete — submitting via UHC Voice/IVR" />;
   }
+  // Screen 1: Dialing
   if (screenIndex === 1) {
     return (
-      <AbstractProcessingLayout systemType="uhc-voice">
-        <div className="p-4 h-full overflow-hidden">
-          <div className="flex items-center gap-2 mb-3">
-            <Phone size={11} className="text-[#FF612B]" />
-            <span className="text-[10px] text-[#8b95a5]">Calling 1-800-555-0199</span>
+      <PhoneCallLayout callerName="UHC Prior Auth" phoneNumber="1-800-555-0199" status="dialing">
+        <div className="flex flex-col items-center justify-center h-full gap-3">
+          <div className="flex items-center gap-3">
+            <CallAvatarBadge label="NS" color="#002677" pulse />
+            <motion.div className="flex gap-1" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
+              {[0, 1, 2].map((i) => (
+                <motion.div key={i} className="w-[3px] h-[3px] rounded-full bg-white/60" animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.3 }} />
+              ))}
+            </motion.div>
+            <CallAvatarBadge label="UHC" color="#FF612B" />
           </div>
-          <ActivitySteps
-            steps={[
-              { label: "Dialing UHC PA hotline", detail: "1-800-555-0199" },
-              { label: "Connected to IVR system", detail: "Automated voice menu answered" },
-              { label: "Navigating menu \u2192 Prior Auth", detail: "Selected New Request" },
-            ]}
-            delayPerStep={2000}
-          />
+          <span className="text-[7px] text-white/40">NorthStar Agent \u2192 UHC IVR</span>
         </div>
-      </AbstractProcessingLayout>
+      </PhoneCallLayout>
     );
   }
+
+  // Screen 2: Connected with live transcript
   if (screenIndex === 2) {
     return (
-      <AbstractProcessingLayout systemType="uhc-voice">
-        <div className="p-4 h-full overflow-hidden">
-          <div className="flex items-center gap-2 mb-3">
-            <Phone size={11} className="text-[#FF612B]" />
-            <span className="text-[10px] text-[#8b95a5]">Active Call — 02:18</span>
+      <PhoneCallLayout callerName="UHC Prior Auth" phoneNumber="1-800-555-0199" status="connected" duration="02:18">
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-center gap-2 px-3 pb-1.5">
+            <CallAvatarBadge label="NS" color="#002677" />
+            <span className="text-[6px] text-white/30">LIVE</span>
+            <CallAvatarBadge label="UHC" color="#FF612B" />
           </div>
-          <ActivitySteps
-            steps={[
-              { label: "Dictating patient details", detail: "Linda Nakamura, DOB, Member ID" },
-              { label: "Dictating procedure info", detail: "CPT 62323 — Lumbar Epidural Injection" },
-              { label: "Dictating diagnosis", detail: "M54.17 — Lumbar Radiculopathy" },
-              { label: "Reference number received", detail: "UHC-PA-2026-84521" },
-            ]}
-            delayPerStep={1800}
-          />
+          <div className="flex-1 overflow-hidden">
+            <LiveTranscript />
+          </div>
         </div>
-      </AbstractProcessingLayout>
+      </PhoneCallLayout>
     );
   }
-  // Screen 3: Call complete
+
+  // Screen 3: Call ended + audio playback
   return (
-    <AbstractProcessingLayout systemType="uhc-voice">
-      <div className="flex flex-col items-center justify-center h-full gap-2">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }}>
-          <CheckCircle size={28} className="text-[#FF612B]" />
-        </motion.div>
-        <span className="text-[14px] text-[#002677] font-bold">Voice Submission Complete</span>
-        <span className="text-[10px] text-[#8b95a5]">Reference: UHC-PA-2026-84521</span>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="flex items-center gap-3 mt-1">
-          <span className="text-[8px] text-[#8b95a5]">Call duration: 3:42</span>
-          <span className="text-[8px] text-[#8b95a5]">Linda Nakamura</span>
-        </motion.div>
+    <PhoneCallLayout callerName="UHC Prior Auth" phoneNumber="1-800-555-0199" status="ended" duration="3:42">
+      <div className="flex flex-col h-full">
+        <div className="flex-1 overflow-y-auto px-3 space-y-1 scrollbar-none">
+          {TRANSCRIPT_LINES.map((line, i) => {
+            const isAgent = line.speaker === "agent";
+            const isRef = line.text.includes("UHC-PA-2026-84521");
+            return (
+              <div key={i} className={`flex items-start gap-1 ${isAgent ? "" : "flex-row-reverse"}`}>
+                <div className="w-[14px] h-[14px] rounded-full flex items-center justify-center flex-shrink-0" style={{ background: isAgent ? "#002677" : "#FF612B" }}>
+                  <span className="text-[5px] text-white font-bold">{isAgent ? "NS" : "UHC"}</span>
+                </div>
+                <div className={`max-w-[78%] rounded px-1.5 py-0.5 ${isAgent ? "bg-white/8" : "bg-[#FF612B]/15"}`}>
+                  <span className={`text-[6px] leading-snug block ${isRef ? "text-[#FF612B] font-semibold" : "text-white/70"}`}>{line.text}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="pt-1 pb-0.5">
+          <AudioWaveformPlayer />
+        </div>
       </div>
-    </AbstractProcessingLayout>
+    </PhoneCallLayout>
   );
 }
 

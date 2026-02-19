@@ -1,7 +1,21 @@
 import { useState } from "react";
-import { motion } from "motion/react";
-import { CheckCircle, XCircle, AlertCircle, Minus, Upload, Database, Ban } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { CheckCircle, XCircle, AlertCircle, Minus, Upload, Database, Ban, FileText, ChevronDown } from "lucide-react";
 import type { DocumentRequirement, CaseBuilderAction } from "../state/case-builder-state";
+
+// ── Activity indicator ──────────────────────────────────────────────────────
+
+function ActivityIndicator({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-brand" />
+      </span>
+      <span className="text-[10px] text-brand font-medium">{label}</span>
+    </div>
+  );
+}
 
 function StatusIcon({ status }: { status: DocumentRequirement["status"] }) {
   switch (status) {
@@ -84,9 +98,14 @@ function DocumentRow({ doc, index, dispatch }: { doc: DocumentRequirement; index
 interface DocumentsSectionProps {
   documents: DocumentRequirement[];
   dispatch: React.Dispatch<CaseBuilderAction>;
+  sectionStatus: "active" | "completed" | "pending";
+  isCollapsed: boolean;
+  onToggle: () => void;
+  activityLabel: string | null;
 }
 
-export function DocumentsSection({ documents, dispatch }: DocumentsSectionProps) {
+export function DocumentsSection({ documents, dispatch, sectionStatus, isCollapsed, onToggle, activityLabel }: DocumentsSectionProps) {
+  const hasData = documents.length > 0;
   const required = documents.filter((d) => d.required);
   const found = required.filter((d) => d.status === "found");
 
@@ -95,23 +114,58 @@ export function DocumentsSection({ documents, dispatch }: DocumentsSectionProps)
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, delay: 0.1 }}
-      className="px-5 py-4"
+      className={`px-5 py-2 ${sectionStatus === "pending" ? "opacity-50" : ""}`}
     >
       {/* Section header */}
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Documents</span>
-        <span className="text-[10px] font-semibold text-text-muted">{found.length}/{required.length}</span>
-      </div>
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between mb-2 cursor-pointer group"
+      >
+        <div className="flex items-center gap-2">
+          <FileText size={13} className="text-text-muted" />
+          <span className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Documents</span>
+          {hasData && (
+            <span className="text-[10px] font-semibold text-text-muted">{found.length}/{required.length}</span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {activityLabel && <ActivityIndicator label={activityLabel} />}
+          {hasData && (
+            <motion.div
+              animate={{ rotate: isCollapsed ? -90 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDown size={14} className="text-text-muted group-hover:text-text-secondary transition-colors" />
+            </motion.div>
+          )}
+        </div>
+      </button>
 
-      {/* Document list */}
-      <div className="flex flex-col">
-        {documents.map((doc, i) => (
-          <DocumentRow key={doc.id} doc={doc} index={i} dispatch={dispatch} />
-        ))}
-      </div>
+      {/* Content */}
+      <AnimatePresence initial={false}>
+        {!isCollapsed && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            {hasData ? (
+              <div className="flex flex-col">
+                {documents.map((doc, i) => (
+                  <DocumentRow key={doc.id} doc={doc} index={i} dispatch={dispatch} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-[11px] text-text-muted italic py-2">Waiting for agent...</p>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Divider */}
-      <div className="mt-4 border-t border-[#f0f2f4]" />
+      <div className="mt-2 border-t border-[#f0f2f4]" />
     </motion.div>
   );
 }
