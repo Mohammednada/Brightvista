@@ -1,8 +1,7 @@
 import { useState } from "react";
 import workspaceSvg from "@/assets/icons/workspace-icon-paths";
 import navSvg from "@/assets/icons/nav-icon-paths";
-// Logo placeholder (original Figma asset not available locally)
-const logoImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='16' fill='%231F425F'/%3E%3Cpath d='M12 18l4-8 4 8-4 8z' fill='%2300AEEF'/%3E%3Cpath d='M20 14l4 4-4 4' stroke='white' stroke-width='2' fill='none'/%3E%3C/svg%3E";
+import brightvistLogo from "@/assets/brightvista-logo.svg";
 import { RoleSwitcher } from "./role-switcher";
 import type { RoleId } from "./role-switcher";
 
@@ -167,7 +166,7 @@ export function Sidebar({ activeRole, onRoleChange, currentView, onNavigate }: {
       {/* Logo — fixed height matches all top nav bars */}
       <div className="h-[56px] flex items-center justify-center shrink-0 border-b border-border-default">
         <div className="w-[36px] h-[36px] flex items-center justify-center">
-          <img src={logoImg} alt="NorthStar Health Center" width={36} height={36} className="object-contain" />
+          <img src={brightvistLogo} alt="BrightVista" width={36} height={36} className="object-contain" />
         </div>
       </div>
 
