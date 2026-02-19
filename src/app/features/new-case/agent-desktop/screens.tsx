@@ -7,7 +7,7 @@ import {
 import { TypeWriter } from "../chat-components";
 import { SYSTEM_THEMES } from "./themes";
 import { MinimalHeader } from "./chrome";
-import { AbstractProcessingLayout, PhoneSmsLayout, PhoneCallLayout } from "./layouts";
+import { AbstractProcessingLayout, PhoneSmsLayout } from "./layouts";
 import { AgentCursor, SystemTransitionScreen } from "./shared";
 import { AnimatedFields, AnimatedList, ActivitySteps, FormAutoFill, TerminalOutput, getFormFillSpeed } from "./primitives";
 
@@ -991,13 +991,13 @@ function CallAvatarBadge({ label, color, pulse = false }: { label: string; color
       {pulse && (
         <motion.div
           className="absolute inset-0 rounded-full"
-          style={{ background: color }}
-          animate={{ scale: [1, 1.6], opacity: [0.4, 0] }}
+          style={{ border: `1.5px solid ${color}` }}
+          animate={{ scale: [1, 1.8], opacity: [0.5, 0] }}
           transition={{ duration: 1.4, repeat: Infinity, ease: "easeOut" }}
         />
       )}
-      <div className="w-[18px] h-[18px] rounded-full flex items-center justify-center" style={{ background: color }}>
-        <span className="text-[6px] text-white font-bold leading-none">{label}</span>
+      <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center" style={{ background: color }}>
+        <span className="text-[7px] text-white font-semibold leading-none">{label}</span>
       </div>
     </div>
   );
@@ -1028,7 +1028,7 @@ function LiveTranscript() {
   }, [visibleCount]);
 
   return (
-    <div ref={scrollRef} className="h-full overflow-y-auto px-3 space-y-1.5 scrollbar-none">
+    <div ref={scrollRef} className="h-full overflow-y-auto px-4 space-y-2 scrollbar-none">
       {TRANSCRIPT_LINES.slice(0, visibleCount).map((line, i) => {
         const isAgent = line.speaker === "agent";
         const isLatest = i === visibleCount - 1;
@@ -1038,17 +1038,17 @@ function LiveTranscript() {
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className={`flex items-start gap-1.5 ${isAgent ? "" : "flex-row-reverse"}`}
+            className={`flex items-start gap-2 ${isAgent ? "" : "flex-row-reverse"}`}
           >
             <CallAvatarBadge
               label={isAgent ? "NS" : "UHC"}
-              color={isAgent ? "#002677" : "#FF612B"}
+              color={isAgent ? "#6b7280" : "#FF612B"}
               pulse={isLatest}
             />
             <div
-              className={`max-w-[75%] rounded-md px-2 py-1 ${isAgent ? "bg-white/10 text-white/90" : "bg-[#FF612B]/20 text-white/90"}`}
+              className={`max-w-[80%] rounded-lg px-2.5 py-1.5 ${isAgent ? "bg-white border border-[#e5e7eb]" : "bg-[#FF612B]/8 border border-[#FF612B]/15"}`}
             >
-              <span className="text-[7px] leading-snug block">{line.text}</span>
+              <span className="text-[9px] leading-relaxed block text-[#374151]">{line.text}</span>
             </div>
           </motion.div>
         );
@@ -1097,12 +1097,12 @@ function AudioWaveformPlayer() {
   const timeStr = `${mins}:${secs.toString().padStart(2, "0")}`;
 
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg mx-3">
-      <button onClick={togglePlay} className="w-[22px] h-[22px] rounded-full bg-[#FF612B] flex items-center justify-center flex-shrink-0">
-        {playing ? <Pause size={9} className="text-white" /> : <Play size={9} className="text-white ml-[1px]" />}
+    <div className="flex items-center gap-2.5 px-4 py-2 bg-white rounded-lg mx-4 border border-[#e5e7eb]">
+      <button onClick={togglePlay} className="w-[26px] h-[26px] rounded-full bg-[#FF612B] flex items-center justify-center flex-shrink-0 hover:bg-[#e5551f] transition-colors">
+        {playing ? <Pause size={10} className="text-white" /> : <Play size={10} className="text-white ml-[1px]" />}
       </button>
-      <div className="flex-1 flex flex-col gap-1">
-        <div className="flex items-end gap-[2px] h-[20px]">
+      <div className="flex-1 flex flex-col gap-1.5">
+        <div className="flex items-end gap-[2px] h-[24px]">
           {barHeights.map((h, i) => {
             const barProgress = i / BAR_COUNT;
             const isActive = barProgress <= progress;
@@ -1110,18 +1110,18 @@ function AudioWaveformPlayer() {
               <motion.div
                 key={i}
                 className="w-[2px] rounded-full"
-                style={{ background: isActive ? "#FF612B" : "rgba(255,255,255,0.15)" }}
+                style={{ background: isActive ? "#FF612B" : "#d1d5db" }}
                 animate={playing ? { height: [h * 0.5, h, h * 0.7, h * 0.9, h * 0.5] } : { height: h }}
                 transition={playing ? { duration: 0.6, repeat: Infinity, repeatType: "mirror", delay: i * 0.04 } : { duration: 0.3 }}
               />
             );
           })}
         </div>
-        <div className="w-full h-[2px] bg-white/10 rounded-full overflow-hidden">
+        <div className="w-full h-[2px] bg-[#e5e7eb] rounded-full overflow-hidden">
           <motion.div className="h-full bg-[#FF612B] rounded-full" style={{ width: `${progress * 100}%` }} />
         </div>
       </div>
-      <span className="text-[7px] text-white/50 tabular-nums flex-shrink-0">{timeStr} / 3:42</span>
+      <span className="text-[8px] text-[#9ca3af] tabular-nums flex-shrink-0">{timeStr} / 3:42</span>
     </div>
   );
 }
@@ -1133,66 +1133,218 @@ function VoiceSubmitScreen({ screenIndex }: { screenIndex: number }) {
   // Screen 1: Dialing
   if (screenIndex === 1) {
     return (
-      <PhoneCallLayout callerName="UHC Prior Auth" phoneNumber="1-800-555-0199" status="dialing">
-        <div className="flex flex-col items-center justify-center h-full gap-3">
-          <div className="flex items-center gap-3">
-            <CallAvatarBadge label="NS" color="#002677" pulse />
-            <motion.div className="flex gap-1" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
+      <AbstractProcessingLayout systemType="uhc-voice">
+        <div className="flex flex-col items-center justify-center h-full gap-4">
+          <div className="flex items-center gap-4">
+            <CallAvatarBadge label="NS" color="#6b7280" pulse />
+            <motion.div className="flex gap-1.5" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
               {[0, 1, 2].map((i) => (
-                <motion.div key={i} className="w-[3px] h-[3px] rounded-full bg-white/60" animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.3 }} />
+                <motion.div key={i} className="w-[4px] h-[4px] rounded-full bg-[#9ca3af]" animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.3 }} />
               ))}
             </motion.div>
             <CallAvatarBadge label="UHC" color="#FF612B" />
           </div>
-          <span className="text-[7px] text-white/40">NorthStar Agent \u2192 UHC IVR</span>
+          <div className="flex flex-col items-center gap-1">
+            <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="text-[11px] text-[#6b7280] font-medium">
+              Calling...
+            </motion.span>
+            <span className="text-[9px] text-[#9ca3af]">1-800-555-0199</span>
+          </div>
         </div>
-      </PhoneCallLayout>
+      </AbstractProcessingLayout>
     );
   }
 
   // Screen 2: Connected with live transcript
   if (screenIndex === 2) {
     return (
-      <PhoneCallLayout callerName="UHC Prior Auth" phoneNumber="1-800-555-0199" status="connected" duration="02:18">
+      <AbstractProcessingLayout systemType="uhc-voice">
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-center gap-2 px-3 pb-1.5">
-            <CallAvatarBadge label="NS" color="#002677" />
-            <span className="text-[6px] text-white/30">LIVE</span>
-            <CallAvatarBadge label="UHC" color="#FF612B" />
+          <div className="flex items-center justify-between px-4 py-2 border-b border-[#e5e7eb]">
+            <div className="flex items-center gap-2">
+              <CallAvatarBadge label="NS" color="#6b7280" />
+              <span className="text-[9px] text-[#6b7280]">Agent</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <motion.div className="w-[5px] h-[5px] rounded-full bg-[#22c55e]" animate={{ opacity: [1, 0.5, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+              <span className="text-[8px] text-[#9ca3af] tabular-nums">02:18</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] text-[#6b7280]">IVR</span>
+              <CallAvatarBadge label="UHC" color="#FF612B" />
+            </div>
           </div>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden pt-2">
             <LiveTranscript />
           </div>
         </div>
-      </PhoneCallLayout>
+      </AbstractProcessingLayout>
     );
   }
 
   // Screen 3: Call ended + audio playback
   return (
-    <PhoneCallLayout callerName="UHC Prior Auth" phoneNumber="1-800-555-0199" status="ended" duration="3:42">
+    <AbstractProcessingLayout systemType="uhc-voice">
       <div className="flex flex-col h-full">
-        <div className="flex-1 overflow-y-auto px-3 space-y-1 scrollbar-none">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-[#e5e7eb]">
+          <div className="flex items-center gap-1.5">
+            <Phone size={10} className="text-[#9ca3af]" />
+            <span className="text-[9px] text-[#6b7280]">Call Ended</span>
+          </div>
+          <span className="text-[8px] text-[#9ca3af] tabular-nums">Duration: 3:42</span>
+        </div>
+        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-1.5 scrollbar-none">
           {TRANSCRIPT_LINES.map((line, i) => {
             const isAgent = line.speaker === "agent";
             const isRef = line.text.includes("UHC-PA-2026-84521");
             return (
-              <div key={i} className={`flex items-start gap-1 ${isAgent ? "" : "flex-row-reverse"}`}>
-                <div className="w-[14px] h-[14px] rounded-full flex items-center justify-center flex-shrink-0" style={{ background: isAgent ? "#002677" : "#FF612B" }}>
-                  <span className="text-[5px] text-white font-bold">{isAgent ? "NS" : "UHC"}</span>
+              <div key={i} className={`flex items-start gap-1.5 ${isAgent ? "" : "flex-row-reverse"}`}>
+                <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center flex-shrink-0" style={{ background: isAgent ? "#6b7280" : "#FF612B" }}>
+                  <span className="text-[5px] text-white font-semibold">{isAgent ? "NS" : "UHC"}</span>
                 </div>
-                <div className={`max-w-[78%] rounded px-1.5 py-0.5 ${isAgent ? "bg-white/8" : "bg-[#FF612B]/15"}`}>
-                  <span className={`text-[6px] leading-snug block ${isRef ? "text-[#FF612B] font-semibold" : "text-white/70"}`}>{line.text}</span>
+                <div className={`max-w-[80%] rounded-lg px-2 py-1 ${isAgent ? "bg-white border border-[#e5e7eb]" : "bg-[#FF612B]/8 border border-[#FF612B]/15"}`}>
+                  <span className={`text-[8px] leading-relaxed block ${isRef ? "text-[#FF612B] font-semibold" : "text-[#374151]"}`}>{line.text}</span>
                 </div>
               </div>
             );
           })}
         </div>
-        <div className="pt-1 pb-0.5">
+        <div className="py-2 border-t border-[#e5e7eb]">
           <AudioWaveformPlayer />
         </div>
       </div>
-    </PhoneCallLayout>
+    </AbstractProcessingLayout>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Fax Submit Screen (UHC — PA Form Fax after Voice Call)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const FAX_PAGES = [
+  { label: "PA Request Form", detail: "Patient demographics, procedure & diagnosis codes" },
+  { label: "Clinical Notes", detail: "Dr. Martinez — lumbar radiculopathy assessment" },
+  { label: "Imaging Referral", detail: "MRI results & specialist recommendation" },
+  { label: "Medical Necessity Letter", detail: "Clinical justification for epidural injection" },
+  { label: "Insurance Verification", detail: "UHC member eligibility confirmation" },
+];
+
+function FaxSubmitScreen({ screenIndex }: { screenIndex: number }) {
+  if (screenIndex === 0) {
+    return <SystemTransitionScreen fromSystem="uhc-voice" toSystem="uhc-fax" summaryText="Voice call complete — faxing PA form and supporting documents to UHC" />;
+  }
+
+  // Screen 1: Generating PDF
+  if (screenIndex === 1) {
+    return (
+      <AbstractProcessingLayout systemType="uhc-fax">
+        <div className="flex flex-col h-full p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <FileText size={12} className="text-[#FF612B]" />
+            <span className="text-[10px] text-[#6b7280] font-medium">Generating PA Form Package</span>
+          </div>
+          <div className="flex-1 space-y-1.5">
+            {FAX_PAGES.map((page, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.6, duration: 0.3 }}
+                className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-[#e5e7eb]"
+              >
+                <div className="w-[18px] h-[22px] rounded-[3px] bg-[#FF612B]/10 flex items-center justify-center flex-shrink-0">
+                  <FileText size={10} className="text-[#FF612B]" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[9px] text-[#374151] font-medium block">{page.label}</span>
+                  <span className="text-[7px] text-[#9ca3af] block">{page.detail}</span>
+                </div>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: i * 0.6 + 0.4, type: "spring" }}
+                  className="ml-auto"
+                >
+                  <CheckCircle size={10} className="text-[#22c55e]" />
+                </motion.div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </AbstractProcessingLayout>
+    );
+  }
+
+  // Screen 2: Transmitting fax
+  if (screenIndex === 2) {
+    return (
+      <AbstractProcessingLayout systemType="uhc-fax">
+        <div className="flex flex-col items-center justify-center h-full gap-4 p-4">
+          <motion.div
+            className="w-[48px] h-[48px] rounded-full border-2 border-[#FF612B]/20 flex items-center justify-center"
+            animate={{ borderColor: ["rgba(255,97,43,0.2)", "rgba(255,97,43,0.6)", "rgba(255,97,43,0.2)"] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <Send size={18} className="text-[#FF612B]" />
+          </motion.div>
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[11px] text-[#374151] font-medium">Transmitting Secure Fax</span>
+            <span className="text-[9px] text-[#9ca3af]">1-800-555-0143 — 5 pages</span>
+          </div>
+          <div className="w-[180px]">
+            <div className="flex justify-between mb-1">
+              <span className="text-[7px] text-[#9ca3af]">Sending...</span>
+              <motion.span
+                className="text-[7px] text-[#FF612B] tabular-nums"
+                animate={{ opacity: [1, 0.5, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                HIPAA Encrypted
+              </motion.span>
+            </div>
+            <div className="w-full h-[3px] bg-[#e5e7eb] rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-[#FF612B] rounded-full"
+                initial={{ width: "0%" }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 6, ease: "easeInOut" }}
+              />
+            </div>
+          </div>
+        </div>
+      </AbstractProcessingLayout>
+    );
+  }
+
+  // Screen 3: Fax delivered
+  return (
+    <AbstractProcessingLayout systemType="uhc-fax">
+      <div className="flex flex-col items-center justify-center h-full gap-3 p-4">
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }}>
+          <CheckCircle size={28} className="text-[#22c55e]" />
+        </motion.div>
+        <span className="text-[12px] text-[#374151] font-semibold">Fax Delivered Successfully</span>
+        <div className="bg-white rounded-lg border border-[#e5e7eb] px-4 py-2.5 space-y-1">
+          <div className="flex items-center justify-between gap-6">
+            <span className="text-[8px] text-[#9ca3af]">Confirmation</span>
+            <span className="text-[9px] text-[#FF612B] font-semibold">FX-84521</span>
+          </div>
+          <div className="flex items-center justify-between gap-6">
+            <span className="text-[8px] text-[#9ca3af]">Fax Number</span>
+            <span className="text-[9px] text-[#374151]">1-800-555-0143</span>
+          </div>
+          <div className="flex items-center justify-between gap-6">
+            <span className="text-[8px] text-[#9ca3af]">Pages Sent</span>
+            <span className="text-[9px] text-[#374151]">5 of 5</span>
+          </div>
+          <div className="flex items-center justify-between gap-6">
+            <span className="text-[8px] text-[#9ca3af]">Reference</span>
+            <span className="text-[9px] text-[#374151]">UHC-PA-2026-84521</span>
+          </div>
+        </div>
+        <span className="text-[8px] text-[#9ca3af]">PA form + clinical documents delivered to UHC</span>
+      </div>
+    </AbstractProcessingLayout>
   );
 }
 
@@ -1293,6 +1445,7 @@ export function PhaseScreenRenderer({ phaseId, screenIndex }: { phaseId: string;
     case "channel-routing": return <ChannelRoutingScreen screenIndex={screenIndex} />;
     case "submit-api": return <ApiSubmitScreen screenIndex={screenIndex} />;
     case "submit-voice": return <VoiceSubmitScreen screenIndex={screenIndex} />;
+    case "submit-voice-fax": return <FaxSubmitScreen screenIndex={screenIndex} />;
     case "submit-rpa": return <RpaSubmitScreen screenIndex={screenIndex} />;
     case "patient-notify": return <NotifyScreen screenIndex={screenIndex} />;
     case "check-status": return <StatusScreen screenIndex={screenIndex} />;

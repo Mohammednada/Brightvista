@@ -152,14 +152,14 @@ export const phase4_payerRules: AgentStepsPhase = {
   systemType: "pa-engine",
   systemUrl: "pa-engine.northstarhealth.org/rules",
   steps: [
-    { id: "s4-1", label: "Connected to PA Rules Engine", detail: "BCBS policy database loaded", duration: 900 },
+    { id: "s4-1", label: "Connected to BrightVista Crystal", detail: "BCBS policy database loaded", duration: 900 },
     { id: "s4-2", label: "Matched CPT 72141 to policy", detail: "Imaging — MRI requires prior auth", duration: 1100 },
     { id: "s4-3", label: "Identified clinical criteria", detail: "InterQual / MCG guidelines applied", duration: 1000 },
     { id: "s4-4", label: "Rules check complete", detail: "5 documentation requirements identified", duration: 800 },
     { id: "s4-5", label: "Saved rules to knowledge base", detail: "Cached for future BCBS MRI PAs", duration: 600 },
   ],
   screens: [
-    { label: "Loading PA Rules Engine", duration: 7500, thinkingText: "Connecting to NorthStar PA Rules Engine — loading BCBS policy database for coverage analysis..." },
+    { label: "Loading BrightVista Crystal", duration: 7500, thinkingText: "Connecting to BrightVista Crystal — loading BCBS policy database for coverage analysis..." },
     { label: "Searching BCBS + CPT 72141", duration: 9000, thinkingText: "Searching BCBS PPO Gold authorization requirements for CPT 72141 (MRI Cervical Spine)..." },
     { label: "Reviewing clinical criteria", duration: 9000, thinkingText: "Applying InterQual / MCG clinical guidelines — evaluating documentation requirements for medical necessity..." },
     { label: "5 requirements identified", duration: 5000, thinkingText: "Rules analysis complete — 5 documentation requirements identified for BCBS MRI prior authorization..." },
@@ -346,6 +346,30 @@ export const phase_submitVoice: AgentStepsPhase = {
   ],
 };
 
+// ── Fax Submission phase (UHC — Linda Nakamura, follows voice call) ──────────
+
+export const phase_submitVoiceFax: AgentStepsPhase = {
+  phaseId: "submit-voice-fax",
+  title: "Faxing PA Form to UHC",
+  subtitle: "UnitedHealthcare — Linda Nakamura",
+  icon: "📠",
+  systemType: "uhc-fax",
+  systemUrl: "fax.northstarhealth.org/secure",
+  steps: [
+    { id: "sf-1", label: "Generating PA form PDF", detail: "Compiling case data into standard PA form", duration: 900 },
+    { id: "sf-2", label: "Attaching clinical documents", detail: "3 supporting documents bundled", duration: 800 },
+    { id: "sf-3", label: "Transmitting fax to UHC", detail: "Fax: 1-800-555-0143 — 5 pages", duration: 1200 },
+    { id: "sf-4", label: "Fax confirmation received", detail: "Confirmation #FX-84521 — delivered", duration: 700 },
+  ],
+  screens: [
+    { label: "Preparing PA form for fax", duration: 6000, thinkingText: "Generating PA form PDF — compiling patient demographics, procedure codes, diagnosis, and clinical justification into standard UHC PA format..." },
+    { label: "Bundling clinical documents", duration: 6000, thinkingText: "Attaching clinical notes, imaging referral, and medical necessity letter — 5-page fax package assembled..." },
+    { label: "Transmitting secure fax", duration: 8000, thinkingText: "Transmitting fax to UHC Prior Auth at 1-800-555-0143 — secure HIPAA-compliant fax gateway — 5 pages sending..." },
+    { label: "Fax delivered — confirmation received", duration: 5000, thinkingText: "Fax successfully delivered — confirmation #FX-84521 — UHC fax server acknowledged receipt of all 5 pages..." },
+  ],
+  onCompleteActions: [],
+};
+
 // ── RPA Submission phase (Aetna — James Rodriguez) ──────────────────────────
 
 export const phase_submitRpa: AgentStepsPhase = {
@@ -437,6 +461,40 @@ export const phase13_checkStatus: AgentStepsPhase = {
     "I've set up auto-monitoring and will notify you of any status changes or RFIs. The case is now in your active queue.",
 };
 
+// Phase 13b — Voice-specific status confirmation (~7s)
+export const phase13_checkStatusVoice: AgentStepsPhase = {
+  phaseId: "check-status",
+  title: "Confirming Submission Status",
+  subtitle: "Verifying voice + fax delivery to UHC",
+  icon: "✅",
+  systemType: "northstar-pa",
+  systemUrl: "app.northstarhealth.org/pa/status",
+  steps: [
+    { id: "s13v-1", label: "Voice reference verified", detail: "UHC-PA-2026-84521 — call logged", duration: 900 },
+    { id: "s13v-2", label: "Fax delivery confirmed", detail: "FX-84521 — 5/5 pages received", duration: 800 },
+    { id: "s13v-3", label: "Auto-monitoring configured", detail: "Will alert on status changes", duration: 700 },
+  ],
+  screens: [
+    { label: "Verifying voice + fax submissions", duration: 8000, thinkingText: "Cross-referencing voice call reference UHC-PA-2026-84521 with fax confirmation FX-84521 — verifying UHC received both submissions..." },
+    { label: "Auto-monitoring configured", duration: 6500, thinkingText: "Configuring auto-monitoring — tracking PA status via UHC provider portal, alerts on decision, RFI auto-detection..." },
+    { label: "All systems green", duration: 5500, thinkingText: "All submissions confirmed — voice call logged, fax delivered, PA workflow complete, monitoring active..." },
+  ],
+  onCompleteActions: [
+    { type: "ADVANCE_STEP", payload: "check-status" } satisfies CaseBuilderAction,
+  ],
+  followUpMessage:
+    "PA Case Complete! Here's the summary:\n\n" +
+    "• Case ID: PA-2026-4821\n" +
+    "• Patient: Linda Nakamura (Member ID: UHC-8847291)\n" +
+    "• Procedure: Lumbar Epidural Steroid Injection (CPT 62323)\n" +
+    "• Diagnosis: Lumbar Radiculopathy (M54.17)\n" +
+    "• Voice Reference: UHC-PA-2026-84521\n" +
+    "• Fax Confirmation: FX-84521 (5 pages)\n" +
+    "• Status: Under Review\n" +
+    "• Expected Decision: 5-7 business days\n\n" +
+    "I've set up auto-monitoring and will notify you of any status changes or RFIs. The case is now in your active queue.",
+};
+
 // ── Phase queue builders ────────────────────────────────────────────────────
 
 /** Phases that run after the user selects an order (fully autonomous) */
@@ -457,8 +515,9 @@ export const submissionPhasesApi: AgentStepsPhase[] = [
 
 export const submissionPhasesVoice: AgentStepsPhase[] = [
   phase_submitVoice,
+  phase_submitVoiceFax,
   phase12_patientNotify,
-  phase13_checkStatus,
+  phase13_checkStatusVoice,
 ];
 
 export const submissionPhasesRpa: AgentStepsPhase[] = [

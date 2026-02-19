@@ -457,7 +457,7 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
               </button>
               <div className="flex items-center gap-2">
                 <p className="text-[16px] text-[#1a1a1a] font-semibold">
-                  New Case
+                  {caseState.patient.name ? `${caseState.caseId} — ${caseState.patient.name}` : "New Case"}
                 </p>
                 {agentModeActive && (
                   <motion.span

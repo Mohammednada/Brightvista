@@ -32,7 +32,7 @@ export interface ChatMsg {
 
 // ── Agent Mode ───────────────────────────────────────────────────────────────
 
-export type AgentSystemType = "epic-ehr" | "pa-engine" | "bcbs-availity" | "northstar-pa" | "api-terminal" | "uhc-voice" | "aetna-portal";
+export type AgentSystemType = "epic-ehr" | "pa-engine" | "bcbs-availity" | "northstar-pa" | "api-terminal" | "uhc-voice" | "uhc-fax" | "aetna-portal";
 
 export interface AgentDesktopScreen {
   label: string;

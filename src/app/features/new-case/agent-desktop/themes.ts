@@ -12,7 +12,7 @@ export const SYSTEM_THEMES: Record<AgentSystemType, {
   "pa-engine": {
     navBg: "#0f3020", sidebarBg: "#153d28", accent: "#22c55e",
     logo: "PA", logoGradient: ["#22c55e", "#16a34a"],
-    name: "Rules Engine", contentBg: "#f3f8f5",
+    name: "BrightVista Crystal", contentBg: "#f3f8f5",
   },
   "bcbs-availity": {
     navBg: "#002855", sidebarBg: "#0a3666", accent: "#3b82f6",
@@ -33,6 +33,11 @@ export const SYSTEM_THEMES: Record<AgentSystemType, {
     navBg: "#002677", sidebarBg: "#003399", accent: "#FF612B",
     logo: "UHC", logoGradient: ["#FF612B", "#e0551f"],
     name: "UHC Voice IVR", contentBg: "#f5f6fa",
+  },
+  "uhc-fax": {
+    navBg: "#1e293b", sidebarBg: "#334155", accent: "#FF612B",
+    logo: "FAX", logoGradient: ["#FF612B", "#e0551f"],
+    name: "UHC Secure Fax", contentBg: "#f8f9fa",
   },
   "aetna-portal": {
     navBg: "#56166A", sidebarBg: "#6b1d82", accent: "#7C3AED",
