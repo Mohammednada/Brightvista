@@ -5,6 +5,8 @@ import type { AgentStepsPhase } from "../types";
 import { DesktopChrome } from "./chrome";
 import { AgentThinkingBar } from "./shared";
 import { PhaseScreenRenderer } from "./screens";
+import { CaseDataProvider, NavigateProvider } from "./case-data-context";
+import type { CaseScreenData } from "./case-data-context";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ELAPSED TIME HOOK
@@ -89,9 +91,11 @@ interface AgentDesktopPanelProps {
   phases: AgentStepsPhase[];
   onPhaseComplete: (phase: AgentStepsPhase) => void;
   onAllComplete: () => void;
+  caseData?: CaseScreenData | null;
+  onNavigate?: (view: string) => void;
 }
 
-export function AgentDesktopPanel({ phases, onPhaseComplete, onAllComplete }: AgentDesktopPanelProps) {
+export function AgentDesktopPanel({ phases, onPhaseComplete, onAllComplete, caseData, onNavigate }: AgentDesktopPanelProps) {
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const [screenKey, setScreenKey] = useState(0);
@@ -164,26 +168,30 @@ export function AgentDesktopPanel({ phases, onPhaseComplete, onAllComplete }: Ag
   );
 
   return (
-    <div className="flex flex-col items-start w-full">
-      <AnimatePresence mode="wait">
-        {!isDone && thinkingText && (
-          <AgentThinkingBar key={screenKey} text={thinkingText} phaseIcon={currentPhase.icon} />
-        )}
-      </AnimatePresence>
-      <DesktopChrome url={currentPhase.systemUrl} footer={footer}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={screenKey}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0"
-          >
-            <PhaseScreenRenderer phaseId={currentPhase.phaseId} screenIndex={currentScreenIndex} />
-          </motion.div>
-        </AnimatePresence>
-      </DesktopChrome>
-    </div>
+    <CaseDataProvider value={caseData ?? null}>
+      <NavigateProvider value={onNavigate}>
+        <div className="flex flex-col items-start w-full">
+          <AnimatePresence mode="wait">
+            {!isDone && thinkingText && (
+              <AgentThinkingBar key={screenKey} text={thinkingText} phaseIcon={currentPhase.icon} />
+            )}
+          </AnimatePresence>
+          <DesktopChrome url={currentPhase.systemUrl} footer={footer}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={screenKey}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="absolute inset-0"
+              >
+                <PhaseScreenRenderer phaseId={currentPhase.phaseId} screenIndex={currentScreenIndex} />
+              </motion.div>
+            </AnimatePresence>
+          </DesktopChrome>
+        </div>
+      </NavigateProvider>
+    </CaseDataProvider>
   );
 }

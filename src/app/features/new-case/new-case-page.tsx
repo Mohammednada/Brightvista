@@ -17,9 +17,19 @@ import { CaseSummaryPanel } from "./summary-panel/case-summary-panel";
 import { EnhancedChatInput } from "./chat-enhancements/enhanced-chat-input";
 import { SmartEmptyState } from "./chat-enhancements/smart-empty-state";
 import { AgentDesktopPanel } from "./agent-desktop";
+import { buildCaseScreenData } from "./agent-desktop/case-data-context";
+import type { CaseScreenData } from "./agent-desktop/case-data-context";
 import { OrdersCard } from "./orders-card";
 import { ReviewCard } from "./review-card";
-import { phase1_scanEHR, ehrOrderCards, autonomousPhases, submissionPhasesApi, submissionPhasesVoice, submissionPhasesRpa } from "@/mock/agent-mode-flow";
+import {
+  phase1_scanEHR,
+  ehrOrderCards,
+  buildOrderContext,
+  createAutonomousPhases,
+  createSubmissionPhasesApi,
+  createSubmissionPhasesVoice,
+  createSubmissionPhasesRpa,
+} from "@/mock/agent-mode-flow";
 import { RpaConsentCard } from "./rpa-consent-card";
 import type { SubmissionChannel } from "@/shared/types";
 
@@ -29,8 +39,8 @@ export interface NewCasePageHandle {
   sendMessage: (text: string) => void;
 }
 
-export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>(
-  function NewCasePage({ onBack }, ref) {
+export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void; onNavigate?: (view: string) => void }>(
+  function NewCasePage({ onBack, onNavigate }, ref) {
     const [messages, setMessages] = useState<ChatMsg[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isTyping, setIsTyping] = useState(false);
@@ -46,11 +56,19 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
     const [waitingForReview, setWaitingForReview] = useState(false);
     const [waitingForRpaConsent, setWaitingForRpaConsent] = useState(false);
     const [selectedChannel, setSelectedChannel] = useState<SubmissionChannel | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<OrderCardData | null>(null);
     const currentPhasesRef = useRef<AgentStepsPhase[]>([]);
 
     // Case builder state
     const { state: caseState, dispatch: caseDispatch, dispatchActions } = useCaseBuilder();
     const showSummaryPanel = caseState.status !== "draft" || Object.keys(caseState.patient).length > 0;
+
+    // Build CaseScreenData from state + selected order
+    const caseData: CaseScreenData | null = buildCaseScreenData(
+      caseState,
+      selectedOrder,
+      ehrOrderCards,
+    );
 
     const scrollToBottom = useCallback(() => {
       if (scrollRef.current) {
@@ -159,8 +177,9 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
     }, [addAgentMessage]);
 
     const handleOrderSelect = useCallback((order: OrderCardData) => {
-      // Track the selected order's submission channel
+      // Track the selected order's submission channel and the order itself
       setSelectedChannel(order.channelType);
+      setSelectedOrder(order);
 
       // Add user selection message
       const userMsg: ChatMsg = {
@@ -173,18 +192,22 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
 
       const channelLabel = order.channelType === "api" ? "X12 278 API" : order.channelType === "voice" ? "Voice/IVR" : "RPA Bot (Portal)";
 
+      // Build order context for factory functions
+      const orderCtx = buildOrderContext(order, caseState.caseId);
+
       // Launch all autonomous phases in a single desktop panel
       setTimeout(() => {
         addAgentMessage(
           `Starting autonomous PA workflow for **${order.patientName}** — ${order.procedure} (CPT ${order.cptCode}).\nDiagnosis: ${order.diagnosis} (${order.icd10Code}). Payer: **${order.payer}** — Submission channel: **${channelLabel}**. I'll handle everything from here.`,
         );
         setTimeout(() => {
-          currentPhasesRef.current = autonomousPhases;
-          setActivePhase(autonomousPhases[0]);
-          addAgentMessage("", { agentDesktopPhases: autonomousPhases });
+          const phases = createAutonomousPhases(orderCtx);
+          currentPhasesRef.current = phases;
+          setActivePhase(phases[0]);
+          addAgentMessage("", { agentDesktopPhases: phases });
         }, 600);
       }, 300);
-    }, [addAgentMessage]);
+    }, [addAgentMessage, caseState.caseId]);
 
     const handleReviewApprove = useCallback(() => {
       setWaitingForReview(false);
@@ -197,6 +220,11 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
       };
       setMessages((prev) => [...prev, userMsg]);
 
+      // Build order context for submission factory functions
+      const orderCtx = selectedOrder
+        ? buildOrderContext(selectedOrder, caseState.caseId)
+        : null;
+
       // Route to the correct submission channel
       if (selectedChannel === "rpa") {
         // RPA requires credential consent before submission
@@ -207,21 +235,23 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
             { rpaConsentCard: true },
           );
         }, 500);
-      } else if (selectedChannel === "voice") {
+      } else if (selectedChannel === "voice" && orderCtx) {
         setTimeout(() => {
-          currentPhasesRef.current = submissionPhasesVoice;
-          setActivePhase(submissionPhasesVoice[0]);
-          addAgentMessage("", { agentDesktopPhases: submissionPhasesVoice });
+          const phases = createSubmissionPhasesVoice(orderCtx);
+          currentPhasesRef.current = phases;
+          setActivePhase(phases[0]);
+          addAgentMessage("", { agentDesktopPhases: phases });
         }, 500);
-      } else {
+      } else if (orderCtx) {
         // Default: API
         setTimeout(() => {
-          currentPhasesRef.current = submissionPhasesApi;
-          setActivePhase(submissionPhasesApi[0]);
-          addAgentMessage("", { agentDesktopPhases: submissionPhasesApi });
+          const phases = createSubmissionPhasesApi(orderCtx);
+          currentPhasesRef.current = phases;
+          setActivePhase(phases[0]);
+          addAgentMessage("", { agentDesktopPhases: phases });
         }, 500);
       }
-    }, [addAgentMessage, selectedChannel]);
+    }, [addAgentMessage, selectedChannel, selectedOrder, caseState.caseId]);
 
     const handleRpaConsent = useCallback(() => {
       setWaitingForRpaConsent(false);
@@ -234,13 +264,20 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
       };
       setMessages((prev) => [...prev, userMsg]);
 
+      const orderCtx = selectedOrder
+        ? buildOrderContext(selectedOrder, caseState.caseId)
+        : null;
+
       // Launch RPA submission phases
-      setTimeout(() => {
-        currentPhasesRef.current = submissionPhasesRpa;
-        setActivePhase(submissionPhasesRpa[0]);
-        addAgentMessage("", { agentDesktopPhases: submissionPhasesRpa });
-      }, 500);
-    }, [addAgentMessage]);
+      if (orderCtx) {
+        setTimeout(() => {
+          const phases = createSubmissionPhasesRpa(orderCtx);
+          currentPhasesRef.current = phases;
+          setActivePhase(phases[0]);
+          addAgentMessage("", { agentDesktopPhases: phases });
+        }, 500);
+      }
+    }, [addAgentMessage, selectedOrder, caseState.caseId]);
 
     const handleRpaConsentDeny = useCallback(() => {
       setWaitingForRpaConsent(false);
@@ -448,7 +485,7 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
         <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden bg-white border-r border-border-default">
           {/* Header */}
           <div className="bg-white shrink-0 w-full sticky top-0 z-10 border-b border-border-default">
-            <div className="flex items-center gap-3 px-4 py-3">
+            <div className="flex items-center gap-3 px-4 h-[56px]">
               <button
                 onClick={onBack}
                 className="w-8 h-8 flex items-center justify-center rounded-[10px] hover:bg-[#f0f2f4] cursor-pointer transition-colors"
@@ -500,6 +537,8 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
                             phases={desktopPhases}
                             onPhaseComplete={handlePhaseComplete}
                             onAllComplete={() => handleDesktopAllComplete(lastPhaseInGroup)}
+                            caseData={caseData}
+                            onNavigate={onNavigate}
                           />
                         );
                       }
@@ -532,7 +571,11 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
                               time={msg.timestamp}
                               onActionSelect={sendMessage}
                             />
-                            <ReviewCard onApprove={handleReviewApprove} onEdit={handleReviewEdit} />
+                            <ReviewCard
+                              onApprove={handleReviewApprove}
+                              onEdit={handleReviewEdit}
+                              caseData={caseData}
+                            />
                           </motion.div>
                         );
                       }
@@ -546,7 +589,13 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void }>
                               time={msg.timestamp}
                               onActionSelect={sendMessage}
                             />
-                            <RpaConsentCard onAuthorize={handleRpaConsent} onDeny={handleRpaConsentDeny} />
+                            <RpaConsentCard
+                              onAuthorize={handleRpaConsent}
+                              onDeny={handleRpaConsentDeny}
+                              patientName={caseData?.patient.name}
+                              procedure={caseData?.procedure.name}
+                              payerName={caseData?.insurance.payerFull}
+                            />
                           </motion.div>
                         );
                       }

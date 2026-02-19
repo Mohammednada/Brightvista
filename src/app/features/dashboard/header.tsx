@@ -9,7 +9,7 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ isPanelOpen, onTogglePanel }: DashboardHeaderProps) {
   return (
     <div className="bg-white shrink-0 w-full sticky top-0 z-10 border-b border-border-default">
-      <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center justify-between px-4 h-[56px]">
         <p
           className="text-[16px] text-[#1a1a1a] font-semibold"
         >

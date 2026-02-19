@@ -12,6 +12,7 @@ import { ActiveCoordinators } from "./features/dashboard/active-coordinators";
 import { RightPanel, type RightPanelHandle } from "./features/agent-panel/right-panel";
 import { CoordinatorMainContent } from "./features/coordinator/coordinator-dashboard";
 import { NewCasePage } from "./features/new-case/new-case-page";
+import { CallCenterPage } from "./features/call-center/call-center-page";
 import type { RoleId } from "./features/sidebar/role-switcher";
 
 function ManagerMainContent({ isPanelOpen, onTogglePanel, onAskAgent }: { isPanelOpen: boolean; onTogglePanel: () => void; onAskAgent: (text: string) => void }) {
@@ -72,8 +73,8 @@ export default function App() {
     setCurrentView("dashboard");
   }, []);
 
-  // Determine if the right panel should show (not on new-case page)
-  const showRightPanel = !(activeRole === "pa-coordinator" && currentView === "new-case");
+  // Determine if the right panel should show (not on new-case or call-center pages)
+  const showRightPanel = !(activeRole === "pa-coordinator" && (currentView === "new-case" || currentView === "call-center"));
 
   return (
     <div className="flex h-screen w-screen bg-white overflow-hidden">
@@ -84,7 +85,9 @@ export default function App() {
         {activeRole === "pa-manager" ? (
           <ManagerMainContent isPanelOpen={isPanelOpen} onTogglePanel={() => setIsPanelOpen(prev => !prev)} onAskAgent={handleAskAgent} />
         ) : currentView === "new-case" ? (
-          <NewCasePage onBack={() => setCurrentView("dashboard")} />
+          <NewCasePage onBack={() => setCurrentView("dashboard")} onNavigate={handleNavigate} />
+        ) : currentView === "call-center" ? (
+          <CallCenterPage />
         ) : (
           <CoordinatorMainContent isPanelOpen={isPanelOpen} onTogglePanel={() => setIsPanelOpen(prev => !prev)} onAskAgent={handleAskAgent} />
         )}

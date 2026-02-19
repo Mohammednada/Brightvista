@@ -10,6 +10,7 @@ import { MinimalHeader } from "./chrome";
 import { AbstractProcessingLayout, PhoneSmsLayout } from "./layouts";
 import { AgentCursor, SystemTransitionScreen } from "./shared";
 import { AnimatedFields, AnimatedList, ActivitySteps, FormAutoFill, TerminalOutput, getFormFillSpeed } from "./primitives";
+import { useCaseDataOptional, useNavigateOptional } from "./case-data-context";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Phase 1: Scan EHR Orders
@@ -17,6 +18,29 @@ import { AnimatedFields, AnimatedList, ActivitySteps, FormAutoFill, TerminalOutp
 
 function ScanOrdersScreen({ screenIndex }: { screenIndex: number }) {
   const theme = SYSTEM_THEMES["epic-ehr"];
+  const data = useCaseDataOptional();
+
+  // Build the order list from context if available, else fallback
+  const orderItems = data?.orders?.map(o => ({
+    text: `${o.patientName} \u2014 ${o.procedure.split(" w/")[0].split(" &")[0]}`,
+    detail: `CPT ${o.cptCode}`,
+  })) ?? [
+    { text: "Margaret Thompson \u2014 MRI Cervical Spine", detail: "CPT 72141" },
+    { text: "James Rodriguez \u2014 CT Abdomen/Pelvis", detail: "CPT 74178" },
+    { text: "Linda Nakamura \u2014 Epidural Injection", detail: "CPT 62323" },
+    { text: "Robert Chen \u2014 Knee Arthroscopy", detail: "CPT 29881" },
+  ];
+
+  const orderItemsShort = data?.orders?.map(o => ({
+    text: `${o.patientName} \u2014 ${o.procedure.split(" w/")[0].split(" &")[0]}`,
+  })) ?? [
+    { text: "Margaret Thompson \u2014 MRI Cervical Spine" },
+    { text: "James Rodriguez \u2014 CT Abdomen/Pelvis" },
+    { text: "Linda Nakamura \u2014 Epidural Injection" },
+    { text: "Robert Chen \u2014 Knee Arthroscopy" },
+  ];
+
+  const orderCount = data?.orders?.length ?? 4;
 
   if (screenIndex === 0) {
     return <SystemTransitionScreen toSystem="epic-ehr" />;
@@ -43,15 +67,7 @@ function ScanOrdersScreen({ screenIndex }: { screenIndex: number }) {
         <MinimalHeader systemType="epic-ehr" />
         <div className="flex-1 overflow-hidden p-3" style={{ backgroundColor: theme.contentBg }}>
           <span className="text-[11px] text-[#1a365d] font-semibold block mb-2">Pending Orders</span>
-          <AnimatedList
-            items={[
-              { text: "Margaret Thompson \u2014 MRI Cervical Spine", detail: "CPT 72141" },
-              { text: "James Rodriguez \u2014 CT Abdomen/Pelvis", detail: "CPT 74178" },
-              { text: "Linda Nakamura \u2014 Epidural Injection", detail: "CPT 62323" },
-              { text: "Robert Chen \u2014 Knee Arthroscopy", detail: "CPT 29881" },
-            ]}
-            delayStart={400}
-          />
+          <AnimatedList items={orderItems} delayStart={400} />
         </div>
       </div>
     );
@@ -63,17 +79,9 @@ function ScanOrdersScreen({ screenIndex }: { screenIndex: number }) {
       <div className="flex-1 overflow-hidden p-3 flex flex-col" style={{ backgroundColor: theme.contentBg }}>
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] text-[#1a365d] font-semibold">PA-Eligible Orders</span>
-          <span className="text-[8px] text-[#1F425F] font-medium">4 PA-eligible orders</span>
+          <span className="text-[8px] text-[#1F425F] font-medium">{orderCount} PA-eligible orders</span>
         </div>
-        <AnimatedList
-          items={[
-            { text: "Margaret Thompson \u2014 MRI Cervical Spine" },
-            { text: "James Rodriguez \u2014 CT Abdomen/Pelvis" },
-            { text: "Linda Nakamura \u2014 Epidural Injection" },
-            { text: "Robert Chen \u2014 Knee Arthroscopy" },
-          ]}
-          delayStart={200}
-        />
+        <AnimatedList items={orderItemsShort} delayStart={200} />
       </div>
     </div>
   );
@@ -85,6 +93,17 @@ function ScanOrdersScreen({ screenIndex }: { screenIndex: number }) {
 
 function PatientDetailsScreen({ screenIndex }: { screenIndex: number }) {
   const theme = SYSTEM_THEMES["epic-ehr"];
+  const data = useCaseDataOptional();
+
+  const patientName = data?.patient.name ?? "Margaret Thompson";
+  const dob = data?.patient.dob ?? "03/15/1958";
+  const age = data?.patient.age ?? 67;
+  const mrn = data?.patient.mrn ?? "NHC-2024-88421";
+  const phone = data?.patient.phone ?? "(860) 555-0147";
+  const address = data?.patient.address ?? "1247 Maple Drive, Hartford, CT";
+  const payerFull = data?.insurance.payerFull ?? "BlueCross BlueShield";
+  const memberId = data?.insurance.memberId ?? "BCB-447821953";
+  const planType = data?.insurance.planType ?? "PPO Gold";
 
   // Screen 0: Centered patient name + loading spinner
   if (screenIndex === 0) {
@@ -92,7 +111,7 @@ function PatientDetailsScreen({ screenIndex }: { screenIndex: number }) {
       <div className="flex flex-col h-[280px]">
         <MinimalHeader systemType="epic-ehr" />
         <div className="flex-1 overflow-hidden flex flex-col items-center justify-center gap-3" style={{ backgroundColor: theme.contentBg }}>
-          <span className="text-[16px] text-[#1a365d] font-semibold">Margaret Thompson</span>
+          <span className="text-[16px] text-[#1a365d] font-semibold">{patientName}</span>
           <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" stroke="#e2e8f0" strokeWidth="2" />
@@ -112,11 +131,11 @@ function PatientDetailsScreen({ screenIndex }: { screenIndex: number }) {
           <span className="text-[10px] text-[#8b95a5] block mb-3">Demographics</span>
           <AnimatedFields
             fields={[
-              { label: "Full Name", value: "Margaret Thompson" },
-              { label: "Date of Birth", value: "03/15/1958 (Age 67)" },
-              { label: "MRN", value: "NHC-2024-88421" },
-              { label: "Phone", value: "(860) 555-0147" },
-              { label: "Address", value: "1247 Maple Drive, Hartford, CT" },
+              { label: "Full Name", value: patientName },
+              { label: "Date of Birth", value: `${dob} (Age ${age})` },
+              { label: "MRN", value: mrn },
+              { label: "Phone", value: phone },
+              { label: "Address", value: address },
             ]}
             delayStart={200}
           />
@@ -133,9 +152,9 @@ function PatientDetailsScreen({ screenIndex }: { screenIndex: number }) {
           <span className="text-[10px] text-[#8b95a5] block mb-3">Insurance</span>
           <AnimatedFields
             fields={[
-              { label: "Insurance Payer", value: "BlueCross BlueShield" },
-              { label: "Member ID", value: "BCB-447821953" },
-              { label: "Plan Type", value: "PPO Gold" },
+              { label: "Insurance Payer", value: payerFull },
+              { label: "Member ID", value: memberId },
+              { label: "Plan Type", value: planType },
             ]}
             delayStart={200}
           />
@@ -183,10 +202,17 @@ function PatientDetailsScreen({ screenIndex }: { screenIndex: number }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function PayerRulesScreen({ screenIndex }: { screenIndex: number }) {
+  const data = useCaseDataOptional();
+
+  const payer = data?.insurance.payer ?? "BCBS";
+  const planType = data?.insurance.planType ?? "PPO Gold";
+  const cptCode = data?.procedure.cptCode ?? "72141";
+  const procedureName = data?.procedure.name ?? "MRI Cervical Spine";
+
   if (screenIndex === 0) {
     return <SystemTransitionScreen fromSystem="epic-ehr" toSystem="pa-engine" summaryText="Patient data extracted: 8 fields verified from EHR" />;
   }
-  // Screen 1: Agent reading policy documents — progressive activity
+  // Screen 1: Agent reading policy documents
   if (screenIndex === 1) {
     return (
       <AbstractProcessingLayout systemType="pa-engine">
@@ -194,10 +220,10 @@ function PayerRulesScreen({ screenIndex }: { screenIndex: number }) {
           <span className="text-[10px] text-[#8b95a5] block mb-3">Reading Policy Documents</span>
           <ActivitySteps
             steps={[
-              { label: "Searching BCBS policy database", detail: "BCBS PPO Gold + CPT 72141" },
-              { label: "Reading coverage guidelines", detail: "Imaging \u2014 MRI authorization rules" },
+              { label: `Searching ${payer} policy database`, detail: `${payer} ${planType} + CPT ${cptCode}` },
+              { label: "Reading coverage guidelines", detail: `${procedureName} authorization rules` },
               { label: "Extracting PA requirements", detail: "InterQual / MCG clinical criteria" },
-              { label: "Policy matched", detail: "MRI Cervical Spine \u2014 Prior Auth Required" },
+              { label: "Policy matched", detail: `${procedureName} \u2014 Prior Auth Required` },
             ]}
             delayPerStep={1800}
           />
@@ -227,13 +253,14 @@ function PayerRulesScreen({ screenIndex }: { screenIndex: number }) {
   }
   // Screen 3: Requirements summary
   if (screenIndex === 3) {
+    const docCount = (data?.documents.count ?? 4) + 1;
     return (
       <AbstractProcessingLayout systemType="pa-engine">
         <div className="flex flex-col items-center justify-center h-full gap-2">
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }}>
             <CheckCircle size={28} className="text-[#1F425F]" />
           </motion.div>
-          <span className="text-[13px] text-[#1F425F] font-semibold">5 Requirements Identified</span>
+          <span className="text-[13px] text-[#1F425F] font-semibold">{docCount} Requirements Identified</span>
           <span className="text-[9px] text-[#8b95a5]">Clinical criteria loaded for form validation</span>
         </div>
       </AbstractProcessingLayout>
@@ -246,12 +273,12 @@ function PayerRulesScreen({ screenIndex }: { screenIndex: number }) {
         <span className="text-[10px] text-[#8b95a5] block mb-3">Formatting &amp; Saving Policy</span>
         <ActivitySteps
           steps={[
-            { label: "Analyzing rule pattern", detail: "BCBS PPO Gold \u2192 MRI Cervical Spine" },
-            { label: "Formatting criteria template", detail: "5 InterQual requirements \u2192 structured format" },
-            { label: "Saved to knowledge base", detail: "Future BCBS + MRI PAs will auto-apply" },
+            { label: "Analyzing rule pattern", detail: `${payer} ${planType} \u2192 ${procedureName}` },
+            { label: "Formatting criteria template", detail: "InterQual requirements \u2192 structured format" },
+            { label: "Saved to knowledge base", detail: `Future ${payer} PAs will auto-apply` },
           ]}
           delayPerStep={2000}
-          doneMessage="Next BCBS MRI PA will skip rules lookup \u2014 saved ~10s"
+          doneMessage={`Next ${payer} PA will skip rules lookup \u2014 saved ~10s`}
         />
       </div>
     </AbstractProcessingLayout>
@@ -308,11 +335,17 @@ function ChannelScreen({ screenIndex }: { screenIndex: number }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function ChecklistScreen({ screenIndex }: { screenIndex: number }) {
+  const data = useCaseDataOptional();
+
+  const requiredDocs = data?.documents.list ?? [
+    "Conservative Therapy Records",
+    "Specialist Referral Letter",
+    "Physical Exam Notes",
+    "Medication History",
+  ];
+
   const docs = [
-    { name: "Conservative Therapy Records", required: true },
-    { name: "Specialist Referral Letter", required: true },
-    { name: "Physical Exam Notes", required: true },
-    { name: "Medication History", required: true },
+    ...requiredDocs.map(name => ({ name, required: true })),
     { name: "Clinical Justification", required: true },
     { name: "Previous Imaging Results", required: false },
   ];
@@ -339,11 +372,20 @@ function ChecklistScreen({ screenIndex }: { screenIndex: number }) {
 
 function FetchDocsScreen({ screenIndex }: { screenIndex: number }) {
   const theme = SYSTEM_THEMES["epic-ehr"];
+  const data = useCaseDataOptional();
+
+  const docList = data?.documents.list ?? [
+    "Conservative Therapy Records",
+    "Specialist Referral Letter",
+    "Physical Exam Notes",
+    "Medication History",
+  ];
+  const docCount = docList.length;
 
   if (screenIndex === 0) {
-    return <SystemTransitionScreen fromSystem="pa-engine" toSystem="epic-ehr" summaryText="Document checklist ready: 5 required + 1 recommended" />;
+    return <SystemTransitionScreen fromSystem="pa-engine" toSystem="epic-ehr" summaryText={`Document checklist ready: ${docCount} required + 1 recommended`} />;
   }
-  // Screen 1: Locating documents — ActivitySteps
+  // Screen 1: Locating documents
   if (screenIndex === 1) {
     return (
       <div className="flex flex-col h-[280px]">
@@ -351,12 +393,10 @@ function FetchDocsScreen({ screenIndex }: { screenIndex: number }) {
         <div className="flex-1 overflow-hidden p-4" style={{ backgroundColor: theme.contentBg }}>
           <span className="text-[10px] text-[#8b95a5] block mb-3">Locating Clinical Documents</span>
           <ActivitySteps
-            steps={[
-              { label: "Conservative Therapy Records", detail: "EMR \u2014 8 weeks PT documented" },
-              { label: "Specialist Referral Letter", detail: "Dr. Patel \u2014 Feb 10, 2026" },
-              { label: "Physical Exam Notes", detail: "EMR \u2014 Feb 12, 2026" },
-              { label: "Medication History", detail: "NSAIDs + muscle relaxants trial" },
-            ]}
+            steps={docList.map(doc => ({
+              label: doc,
+              detail: "Located in EMR",
+            }))}
             delayPerStep={2500}
           />
         </div>
@@ -372,7 +412,7 @@ function FetchDocsScreen({ screenIndex }: { screenIndex: number }) {
           <CheckCircle size={28} className="text-[#1F425F]" />
         </motion.div>
         <span className="text-[13px] text-[#1F425F] font-semibold">All Documents Located</span>
-        <span className="text-[9px] text-[#8b95a5]">4/4 required documents found in EHR</span>
+        <span className="text-[9px] text-[#8b95a5]">{docCount}/{docCount} required documents found in EHR</span>
       </div>
     </div>
   );
@@ -383,8 +423,28 @@ function FetchDocsScreen({ screenIndex }: { screenIndex: number }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function FillFormScreen({ screenIndex }: { screenIndex: number }) {
+  const data = useCaseDataOptional();
+
+  const patientName = data?.patient.name ?? "Margaret Thompson";
+  const dob = data?.patient.dob ?? "03/15/1958";
+  const memberId = data?.insurance.memberId ?? "BCB-447821953";
+  const phone = data?.patient.phone ?? "(860) 555-0147";
+  const cptCode = data?.procedure.cptCode ?? "72141";
+  const cptDesc = data?.procedure.cptDescription ?? "MRI Cervical Spine w/o Contrast";
+  const icd10Code = data?.procedure.icd10Code ?? "M54.12";
+  const icd10Desc = data?.procedure.icd10Description ?? "Cervical Radiculopathy";
+  const physician = data?.physician ?? "Dr. Sarah Patel";
+  const approvalLikelihood = data?.approvalLikelihood ?? 92;
+  const justification = data?.clinicalJustification ?? "Patient presents with cervical radiculopathy (M54.12) unresponsive to 8 weeks of conservative therapy including NSAIDs and physical therapy. MRI is medically necessary to evaluate for disc herniation or spinal stenosis.";
+  const docList = data?.documents.list ?? [
+    "Conservative Therapy Records",
+    "Specialist Referral Letter",
+    "Physical Exam Notes",
+    "Medication History",
+  ];
+
   if (screenIndex === 0) {
-    return <SystemTransitionScreen fromSystem="bcbs-availity" toSystem="northstar-pa" summaryText="Submission channel: X12 278 API selected (99.2% success)" />;
+    return <SystemTransitionScreen fromSystem="bcbs-availity" toSystem="northstar-pa" summaryText="Submission channel selected — preparing PA form" />;
   }
   // Screen 1: Patient fields
   if (screenIndex === 1) {
@@ -393,10 +453,10 @@ function FillFormScreen({ screenIndex }: { screenIndex: number }) {
         <div className="h-full overflow-y-auto">
           <FormAutoFill
             fields={[
-              { label: "Patient Name", value: "Margaret Thompson" },
-              { label: "Date of Birth", value: "03/15/1958" },
-              { label: "Member ID", value: "BCB-447821953" },
-              { label: "Phone", value: "(860) 555-0147" },
+              { label: "Patient Name", value: patientName },
+              { label: "Date of Birth", value: dob },
+              { label: "Member ID", value: memberId },
+              { label: "Phone", value: phone },
             ]}
             delayStart={200}
           />
@@ -411,9 +471,9 @@ function FillFormScreen({ screenIndex }: { screenIndex: number }) {
         <div className="h-full overflow-y-auto">
           <FormAutoFill
             fields={[
-              { label: "CPT Code", value: "72141 \u2014 MRI Cervical Spine w/o Contrast" },
-              { label: "ICD-10 Code", value: "M54.12 \u2014 Cervical Radiculopathy" },
-              { label: "Ordering Physician", value: "Dr. Sarah Patel" },
+              { label: "CPT Code", value: `${cptCode} \u2014 ${cptDesc}` },
+              { label: "ICD-10 Code", value: `${icd10Code} \u2014 ${icd10Desc}` },
+              { label: "Ordering Physician", value: physician },
             ]}
             delayStart={200}
           />
@@ -423,15 +483,9 @@ function FillFormScreen({ screenIndex }: { screenIndex: number }) {
   }
   // Screen 3: Documents + justification
   if (screenIndex === 3) {
-    const docs = [
-      "Conservative Therapy Records",
-      "Specialist Referral Letter",
-      "Physical Exam Notes",
-      "Medication History",
-    ];
     const [attached, setAttached] = useState<number[]>([]);
     useEffect(() => {
-      const timers = docs.map((_, i) =>
+      const timers = docList.map((_, i) =>
         setTimeout(() => setAttached(prev => [...prev, i]), 800 + i * 1200)
       );
       return () => timers.forEach(clearTimeout);
@@ -442,7 +496,7 @@ function FillFormScreen({ screenIndex }: { screenIndex: number }) {
         <div className="p-4 h-full overflow-y-auto">
           <span className="text-[8px] text-[#8b95a5] block mb-2">Attaching Documents</span>
           <div className="flex flex-col gap-1 mb-3">
-            {docs.map((doc, i) => (
+            {docList.map((doc, i) => (
               <motion.div
                 key={doc}
                 initial={{ opacity: 0.3 }}
@@ -460,10 +514,7 @@ function FillFormScreen({ screenIndex }: { screenIndex: number }) {
           </div>
           <span className="text-[8px] text-[#8b95a5] block mb-1">Clinical Justification</span>
           <div className="text-[9px] text-[#1a2a3d] leading-relaxed">
-            <TypeWriter
-              text="Patient presents with cervical radiculopathy (M54.12) unresponsive to 8 weeks of conservative therapy including NSAIDs and physical therapy. MRI is medically necessary to evaluate for disc herniation or spinal stenosis."
-              speed={35}
-            />
+            <TypeWriter text={justification} speed={35} />
           </div>
         </div>
       </AbstractProcessingLayout>
@@ -502,14 +553,14 @@ function FillFormScreen({ screenIndex }: { screenIndex: number }) {
             <span className="text-[12px] text-[#1a2a3d] font-semibold">Form Validation Passed</span>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="flex items-center gap-2">
               <Zap size={10} className="text-[#1F425F]" />
-              <span className="text-[10px] text-[#1F425F] font-semibold">92% Approval Likelihood</span>
+              <span className="text-[10px] text-[#1F425F] font-semibold">{approvalLikelihood}% Approval Likelihood</span>
             </motion.div>
             <div className="flex flex-col gap-1 w-full max-w-[240px]">
               {[
                 { label: "Conservative therapy documented", score: "+24%" },
                 { label: "Complete clinical documentation", score: "+22%" },
                 { label: "InterQual criteria met 5/5", score: "+28%" },
-                { label: "Prior BCBS approval history", score: "+18%" },
+                { label: "Prior approval history", score: "+18%" },
               ].map((factor, i) => (
                 <motion.div
                   key={factor.label}
@@ -531,12 +582,23 @@ function FillFormScreen({ screenIndex }: { screenIndex: number }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Phase 11: Submit (Terminal — kept as-is)
+// Phase 11: Submit (Legacy Terminal — kept for backwards compat)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function SubmitScreen({ screenIndex }: { screenIndex: number }) {
+  const data = useCaseDataOptional();
+  const patientName = data?.patient.name ?? "Margaret Thompson";
+  const mrn = data?.patient.mrn ?? "NHC-2024-88421";
+  const cptCode = data?.procedure.cptCode ?? "72141";
+  const procedureName = data?.procedure.name ?? "MRI Cervical Spine";
+  const docCount = data?.documents.count ?? 4;
+  const trackingId = data?.submission.trackingId ?? "BCBS-2026-0215-4721";
+  const expectedResponse = data?.submission.expectedResponse ?? "3-5 business days";
+  const caseId = data?.caseId ?? "PA-2026-0215";
+  const payer = data?.insurance.payer ?? "BCBS";
+
   if (screenIndex === 0) {
-    return <SystemTransitionScreen fromSystem="northstar-pa" toSystem="api-terminal" summaryText="PA form complete: 22/22 fields, 92% approval likelihood" />;
+    return <SystemTransitionScreen fromSystem="northstar-pa" toSystem="api-terminal" summaryText={`PA form complete: 22/22 fields, ${data?.approvalLikelihood ?? 92}% approval likelihood`} />;
   }
   if (screenIndex === 1) {
     return (
@@ -557,17 +619,17 @@ function SubmitScreen({ screenIndex }: { screenIndex: number }) {
         <div className="flex-1 overflow-hidden">
           <TerminalOutput
             lines={[
-              { text: "northstar-agent submit --protocol x12-278 --payer BCBS", type: "command" },
-              { text: "Initializing secure connection to BCBS API gateway...", type: "thinking" },
+              { text: `northstar-agent submit --protocol x12-278 --payer ${payer}`, type: "command" },
+              { text: `Initializing secure connection to ${payer} API gateway...`, type: "thinking" },
               { text: "TLS 1.3 handshake complete \u2014 endpoint verified", type: "output" },
               { text: "Compiling submission package...", type: "thinking" },
-              { text: "  \u2192 Patient: Margaret Thompson (NHC-2024-88421)", type: "info" },
-              { text: "  \u2192 Procedure: CPT 72141 \u2014 MRI Cervical Spine", type: "info" },
-              { text: "  \u2192 Documents: 4 clinical attachments (PDF)", type: "info" },
+              { text: `  \u2192 Patient: ${patientName} (${mrn})`, type: "info" },
+              { text: `  \u2192 Procedure: CPT ${cptCode} \u2014 ${procedureName}`, type: "info" },
+              { text: `  \u2192 Documents: ${docCount} clinical attachments (PDF)`, type: "info" },
               { text: "Encoding X12 278 transaction set...", type: "thinking" },
-              { text: "  BHT*0007*11*BCBS2026021547*20260215*1423*18", type: "output" },
+              { text: `  BHT*0007*11*${payer}2026021547*20260215*1423*18`, type: "output" },
               { text: "  HL*1**20*1", type: "output" },
-              { text: "  2000E SV1*HC:72141*1*UN***1:2:3", type: "output" },
+              { text: `  2000E SV1*HC:${cptCode}*1*UN***1:2:3`, type: "output" },
             ]}
             delayStart={200}
           />
@@ -580,20 +642,20 @@ function SubmitScreen({ screenIndex }: { screenIndex: number }) {
       <div className="h-[280px] bg-[#0d1117] flex flex-col">
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[#21262d]">
           <Terminal size={10} className="text-[#58a6ff]" />
-          <span className="text-[9px] text-[#c9d1d9] font-mono font-semibold">X12 278 \u2014 Response</span>
+          <span className="text-[9px] text-[#c9d1d9] font-mono font-semibold">X12 278 — Response</span>
         </div>
         <div className="flex-1 overflow-hidden">
           <TerminalOutput
             lines={[
-              { text: "POST https://api.availity.com/bcbs/x12/278", type: "command" },
+              { text: `POST https://api.availity.com/${payer.toLowerCase()}/x12/278`, type: "command" },
               { text: "Transmitting encrypted payload (12.4 KB)...", type: "thinking" },
               { text: "HTTP/1.1 200 OK", type: "success" },
               { text: "Content-Type: application/x12", type: "output" },
               { text: "  AAA*Y**42*C", type: "output" },
               { text: "Transaction acknowledged by payer", type: "success" },
-              { text: "  Tracking ID: BCBS-2026-0215-4721", type: "info" },
+              { text: `  Tracking ID: ${trackingId}`, type: "info" },
               { text: "  Status: Accepted for Review", type: "info" },
-              { text: "  Expected Response: 3-5 business days", type: "info" },
+              { text: `  Expected Response: ${expectedResponse}`, type: "info" },
             ]}
             delayStart={200}
           />
@@ -614,10 +676,10 @@ function SubmitScreen({ screenIndex }: { screenIndex: number }) {
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
           <span className="text-[14px] text-[#4da8da] font-bold font-mono">PA Request Submitted</span>
-          <span className="text-[10px] text-[#8b949e] font-mono">Tracking: BCBS-2026-0215-4721</span>
+          <span className="text-[10px] text-[#8b949e] font-mono">Tracking: {trackingId}</span>
         </motion.div>
         <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-[8px] text-[#8b949e] font-mono">
-          Case PA-2026-0215 \u2022 Under Review \u2022 Est. 3-5 business days
+          Case {caseId} &bull; Under Review &bull; Est. {expectedResponse}
         </motion.span>
       </div>
     </div>
@@ -629,14 +691,16 @@ function SubmitScreen({ screenIndex }: { screenIndex: number }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function NotifySendingAnimation() {
+  const data = useCaseDataOptional();
+  const phone = data?.patient.phone ?? "(860) 555-0147";
+
   const channels = [
-    { label: "SMS", detail: "(860) 555-0147", icon: MessageSquare, delay: 0 },
+    { label: "SMS", detail: phone, icon: MessageSquare, delay: 0 },
     { label: "MyChart Portal", detail: "Patient portal update", icon: Bell, delay: 1.8 },
   ];
 
   return (
     <div className="h-[280px] bg-[#f7fafc] flex flex-col items-center justify-center px-8 overflow-hidden">
-      {/* Animated envelope launching */}
       <motion.div
         className="mb-6"
         initial={{ y: 0, scale: 1 }}
@@ -648,7 +712,6 @@ function NotifySendingAnimation() {
         </div>
       </motion.div>
 
-      {/* Channel delivery rows */}
       <div className="flex flex-col gap-3 w-full max-w-[260px] -mt-8">
         {channels.map((ch) => (
           <NotifyChannelRow key={ch.label} channel={ch} />
@@ -705,7 +768,6 @@ function NotifyChannelRow({ channel }: { channel: { label: string; detail: strin
           </span>
         </div>
         <span className="text-[8px] text-[#8b95a5] block">{channel.detail}</span>
-        {/* Progress bar */}
         <div className="h-[3px] rounded-full bg-[#e5e8ee] mt-1 overflow-hidden">
           <motion.div
             className={`h-full rounded-full ${phase === "done" ? "bg-[#099F69]" : "bg-[#4da8da]"}`}
@@ -720,6 +782,15 @@ function NotifyChannelRow({ channel }: { channel: { label: string; detail: strin
 }
 
 function NotifyScreen({ screenIndex }: { screenIndex: number }) {
+  const data = useCaseDataOptional();
+
+  const patientName = data?.patient.name ?? "Margaret Thompson";
+  const phone = data?.patient.phone ?? "(860) 555-0147";
+  const procedureName = data?.procedure.name ?? "MRI Cervical Spine";
+  const payerFull = data?.insurance.payerFull ?? "BlueCross BlueShield";
+  const trackingId = data?.submission.trackingId ?? "BCBS-2026-0215-4721";
+  const expectedResponse = data?.submission.expectedResponse ?? "3-5 business days";
+
   // Screen 0: Composing message with typewriter
   if (screenIndex === 0) {
     return (
@@ -730,19 +801,19 @@ function NotifyScreen({ screenIndex }: { screenIndex: number }) {
         </div>
         <div className="flex items-center gap-2 mb-2 text-[9px] text-[#8b95a5]">
           <span>To:</span>
-          <span className="text-[#1a365d] font-medium">Margaret Thompson</span>
-          <span>(860) 555-0147</span>
+          <span className="text-[#1a365d] font-medium">{patientName}</span>
+          <span>{phone}</span>
         </div>
         <div className="text-[9px] text-[#1a365d] leading-relaxed">
           <TypeWriter
-            text="Hi Margaret, this is NorthStar Health. Your prior authorization for MRI Cervical Spine has been submitted to BlueCross BlueShield. Tracking ID: BCBS-2026-0215-4721. Expected response: 3-5 business days. Check MyChart for updates."
+            text={`Hi ${patientName.split(" ")[0]}, this is NorthStar Health. Your prior authorization for ${procedureName} has been submitted to ${payerFull}. Tracking ID: ${trackingId}. Expected response: ${expectedResponse}. Check MyChart for updates.`}
             speed={20}
           />
         </div>
       </div>
     );
   }
-  // Screen 1: Sending animation — progress channels
+  // Screen 1: Sending animation
   if (screenIndex === 1) {
     return <NotifySendingAnimation />;
   }
@@ -780,6 +851,9 @@ function NotifyScreen({ screenIndex }: { screenIndex: number }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function StatusScreen({ screenIndex }: { screenIndex: number }) {
+  const data = useCaseDataOptional();
+  const payer = data?.insurance.payer ?? "BCBS";
+
   if (screenIndex === 0) {
     return (
       <AbstractProcessingLayout systemType="northstar-pa">
@@ -790,7 +864,7 @@ function StatusScreen({ screenIndex }: { screenIndex: number }) {
               <path d="M14 2A12 12 0 0 1 26 14" stroke="#4da8da" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </motion.div>
-          <span className="text-[11px] text-[#1a2a3d] font-medium">Querying BCBS status API...</span>
+          <span className="text-[11px] text-[#1a2a3d] font-medium">Querying {payer} status API...</span>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -811,7 +885,7 @@ function StatusScreen({ screenIndex }: { screenIndex: number }) {
           <span className="text-[10px] text-[#8b95a5] block mb-3">Auto-Monitoring Configured</span>
           <AnimatedList
             items={[
-              { text: "Status polling", detail: "Every 4 hours via BCBS API" },
+              { text: "Status polling", detail: `Every 4 hours via ${payer} API` },
               { text: "Alert on decision", detail: "Notify via SMS + email" },
               { text: "RFI detection", detail: "Auto-detect additional info requests" },
             ]}
@@ -848,8 +922,23 @@ function StatusScreen({ screenIndex }: { screenIndex: number }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function ChannelRoutingScreen({ screenIndex }: { screenIndex: number }) {
+  const data = useCaseDataOptional();
+
+  const orderRoutingItems = data?.orders?.map(o => {
+    const chLabel = o.channelType === "api" ? "API" : o.channelType === "voice" ? "Voice" : "RPA";
+    return {
+      text: `${o.patientName} — ${o.procedure.split(" w/")[0].split(" &")[0]}`,
+      detail: `${o.payer} → ${chLabel}`,
+    };
+  }) ?? [
+    { text: "Margaret Thompson — MRI Cervical Spine", detail: "BCBS → API" },
+    { text: "Robert Chen — Knee Arthroscopy", detail: "BCBS → API" },
+    { text: "Linda Nakamura — Epidural Injection", detail: "UHC → Voice" },
+    { text: "James Rodriguez — CT Abdomen/Pelvis", detail: "Aetna → RPA" },
+  ];
+
   if (screenIndex === 0) {
-    return <SystemTransitionScreen fromSystem="northstar-pa" toSystem="pa-engine" summaryText="PA form approved — routing all 4 orders to submission channels" />;
+    return <SystemTransitionScreen fromSystem="northstar-pa" toSystem="pa-engine" summaryText="PA form approved — routing all orders to submission channels" />;
   }
   if (screenIndex === 1) {
     return (
@@ -868,32 +957,37 @@ function ChannelRoutingScreen({ screenIndex }: { screenIndex: number }) {
       </AbstractProcessingLayout>
     );
   }
-  // Screen 2: Routing overview with channel badges
+  // Screen 2: Routing overview
+  const orderCount = data?.orders?.length ?? 4;
   return (
     <AbstractProcessingLayout systemType="pa-engine">
       <div className="p-4 h-full overflow-hidden">
-        <span className="text-[10px] text-[#8b95a5] block mb-3">Channel Routing — 4 Orders</span>
-        <AnimatedList
-          items={[
-            { text: "Margaret Thompson — MRI Cervical Spine", detail: "BCBS → API" },
-            { text: "Robert Chen — Knee Arthroscopy", detail: "BCBS → API" },
-            { text: "Linda Nakamura — Epidural Injection", detail: "UHC → Voice" },
-            { text: "James Rodriguez — CT Abdomen/Pelvis", detail: "Aetna → RPA" },
-          ]}
-          delayStart={300}
-        />
+        <span className="text-[10px] text-[#8b95a5] block mb-3">Channel Routing — {orderCount} Orders</span>
+        <AnimatedList items={orderRoutingItems} delayStart={300} />
       </div>
     </AbstractProcessingLayout>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// API Submit Screen (single BCBS order — terminal UI)
+// API Submit Screen (single order — terminal UI)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function ApiSubmitScreen({ screenIndex }: { screenIndex: number }) {
+  const data = useCaseDataOptional();
+
+  const patientName = data?.patient.name ?? "Margaret Thompson";
+  const mrn = data?.patient.mrn ?? "NHC-2024-88421";
+  const cptCode = data?.procedure.cptCode ?? "72141";
+  const procedureName = data?.procedure.name ?? "MRI Cervical Spine";
+  const docCount = data?.documents.count ?? 4;
+  const trackingId = data?.submission.trackingId ?? "BCBS-2026-0215-4721";
+  const expectedResponse = data?.submission.expectedResponse ?? "3-5 business days";
+  const caseId = data?.caseId ?? "PA-2026-0215";
+  const payer = data?.insurance.payer ?? "BCBS";
+
   if (screenIndex === 0) {
-    return <SystemTransitionScreen fromSystem="northstar-pa" toSystem="api-terminal" summaryText="PA form complete — submitting via BCBS X12 278 API" />;
+    return <SystemTransitionScreen fromSystem="northstar-pa" toSystem="api-terminal" summaryText={`PA form complete — submitting via ${payer} X12 278 API`} />;
   }
   if (screenIndex === 1) {
     return (
@@ -914,17 +1008,17 @@ function ApiSubmitScreen({ screenIndex }: { screenIndex: number }) {
         <div className="flex-1 overflow-hidden">
           <TerminalOutput
             lines={[
-              { text: "northstar-agent submit --protocol x12-278 --payer BCBS", type: "command" },
-              { text: "Initializing secure connection to BCBS API gateway...", type: "thinking" },
+              { text: `northstar-agent submit --protocol x12-278 --payer ${payer}`, type: "command" },
+              { text: `Initializing secure connection to ${payer} API gateway...`, type: "thinking" },
               { text: "TLS 1.3 handshake complete — endpoint verified", type: "output" },
               { text: "Compiling submission package...", type: "thinking" },
-              { text: "  \u2192 Patient: Margaret Thompson (NHC-2024-88421)", type: "info" },
-              { text: "  \u2192 Procedure: CPT 72141 — MRI Cervical Spine", type: "info" },
-              { text: "  \u2192 Documents: 4 clinical attachments (PDF)", type: "info" },
+              { text: `  \u2192 Patient: ${patientName} (${mrn})`, type: "info" },
+              { text: `  \u2192 Procedure: CPT ${cptCode} — ${procedureName}`, type: "info" },
+              { text: `  \u2192 Documents: ${docCount} clinical attachments (PDF)`, type: "info" },
               { text: "Encoding X12 278 transaction set...", type: "thinking" },
-              { text: "  BHT*0007*11*BCBS2026021547*20260215*1423*18", type: "output" },
+              { text: `  BHT*0007*11*${payer}2026021547*20260215*1423*18`, type: "output" },
               { text: "  HL*1**20*1", type: "output" },
-              { text: "  2000E SV1*HC:72141*1*UN***1:2:3", type: "output" },
+              { text: `  2000E SV1*HC:${cptCode}*1*UN***1:2:3`, type: "output" },
             ]}
             delayStart={200}
           />
@@ -942,15 +1036,15 @@ function ApiSubmitScreen({ screenIndex }: { screenIndex: number }) {
         <div className="flex-1 overflow-hidden">
           <TerminalOutput
             lines={[
-              { text: "POST https://api.availity.com/bcbs/x12/278", type: "command" },
+              { text: `POST https://api.availity.com/${payer.toLowerCase()}/x12/278`, type: "command" },
               { text: "Transmitting encrypted payload (12.4 KB)...", type: "thinking" },
               { text: "HTTP/1.1 200 OK", type: "success" },
               { text: "Content-Type: application/x12", type: "output" },
               { text: "  AAA*Y**42*C", type: "output" },
               { text: "Transaction acknowledged by payer", type: "success" },
-              { text: "  Tracking ID: BCBS-2026-0215-4721", type: "info" },
+              { text: `  Tracking ID: ${trackingId}`, type: "info" },
               { text: "  Status: Accepted for Review", type: "info" },
-              { text: "  Expected Response: 3-5 business days", type: "info" },
+              { text: `  Expected Response: ${expectedResponse}`, type: "info" },
             ]}
             delayStart={200}
           />
@@ -971,10 +1065,10 @@ function ApiSubmitScreen({ screenIndex }: { screenIndex: number }) {
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
           <span className="text-[14px] text-[#4da8da] font-bold font-mono">PA Request Submitted</span>
-          <span className="text-[9px] text-[#8b949e] font-mono">Tracking: BCBS-2026-0215-4721</span>
+          <span className="text-[9px] text-[#8b949e] font-mono">Tracking: {trackingId}</span>
         </motion.div>
         <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-[8px] text-[#8b949e] font-mono">
-          Case PA-2026-0215 &bull; Under Review &bull; Est. 3-5 business days
+          Case {caseId} &bull; Under Review &bull; Est. {expectedResponse}
         </motion.span>
       </div>
     </div>
@@ -1003,25 +1097,155 @@ function CallAvatarBadge({ label, color, pulse = false }: { label: string; color
   );
 }
 
-const TRANSCRIPT_LINES: { speaker: "agent" | "ivr"; text: string }[] = [
-  { speaker: "agent", text: "Requesting prior authorization for CPT 62323, Lumbar Epidural Steroid Injection." },
-  { speaker: "ivr",   text: "Member ID please." },
-  { speaker: "agent", text: "Member ID UHC-8847291." },
-  { speaker: "ivr",   text: "Verified. Patient Linda Nakamura. Please provide diagnosis code." },
-  { speaker: "agent", text: "ICD-10 M54.17, Lumbar Radiculopathy." },
-  { speaker: "ivr",   text: "Authorization request received. Reference UHC-PA-2026-84521. Review in 5-7 business days." },
-  { speaker: "agent", text: "Confirmed. Thank you." },
-];
+function VoiceSubmitScreen({ screenIndex }: { screenIndex: number }) {
+  const data = useCaseDataOptional();
+  const navigate = useNavigateOptional();
+  const [navReady, setNavReady] = useState(false);
 
-function LiveTranscript() {
+  // Enable navigation button after a short delay (simulates processing approval)
+  useEffect(() => {
+    if (screenIndex !== 3 || !navigate) return;
+    const timer = setTimeout(() => setNavReady(true), 2000);
+    return () => clearTimeout(timer);
+  }, [screenIndex, navigate]);
+
+  const cptCode = data?.procedure.cptCode ?? "62323";
+  const procedureName = data?.procedure.name ?? "Lumbar Epidural Steroid Injection";
+  const memberId = data?.insurance.memberId ?? "UHC-8847291";
+  const patientName = data?.patient.name ?? "Linda Nakamura";
+  const icd10Code = data?.procedure.icd10Code ?? "M54.17";
+  const icd10Desc = data?.procedure.icd10Description ?? "Lumbar Radiculopathy";
+  const trackingId = data?.submission.trackingId ?? "UHC-PA-2026-84521";
+  const payer = data?.insurance.payer ?? "UHC";
+  const phoneNum = data?.submission.voicePhoneNumber ?? "1-800-555-0199";
+
+  const TRANSCRIPT_LINES: { speaker: "agent" | "ivr"; text: string }[] = [
+    { speaker: "agent", text: `Requesting prior authorization for CPT ${cptCode}, ${procedureName}.` },
+    { speaker: "ivr",   text: "Member ID please." },
+    { speaker: "agent", text: `Member ID ${memberId}.` },
+    { speaker: "ivr",   text: `Verified. Patient ${patientName}. Please provide diagnosis code.` },
+    { speaker: "agent", text: `ICD-10 ${icd10Code}, ${icd10Desc}.` },
+    { speaker: "ivr",   text: `Authorization request received. Reference ${trackingId}. Review in 5-7 business days.` },
+    { speaker: "agent", text: "Confirmed. Thank you." },
+  ];
+
+  if (screenIndex === 0) {
+    return <SystemTransitionScreen fromSystem="northstar-pa" toSystem="uhc-voice" summaryText={`PA form complete — submitting via ${payer} Voice/IVR`} />;
+  }
+  // Screen 1: Dialing
+  if (screenIndex === 1) {
+    return (
+      <AbstractProcessingLayout systemType="uhc-voice">
+        <div className="flex flex-col items-center justify-center h-full gap-4">
+          <div className="flex items-center gap-4">
+            <CallAvatarBadge label="NS" color="#6b7280" pulse />
+            <motion.div className="flex gap-1.5" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
+              {[0, 1, 2].map((i) => (
+                <motion.div key={i} className="w-[4px] h-[4px] rounded-full bg-[#9ca3af]" animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.3 }} />
+              ))}
+            </motion.div>
+            <CallAvatarBadge label={payer} color="#FF612B" />
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="text-[11px] text-[#6b7280] font-medium">
+              Calling...
+            </motion.span>
+            <span className="text-[9px] text-[#9ca3af]">{phoneNum}</span>
+          </div>
+        </div>
+      </AbstractProcessingLayout>
+    );
+  }
+
+  // Screen 2: Connected with live transcript
+  if (screenIndex === 2) {
+    return (
+      <AbstractProcessingLayout systemType="uhc-voice">
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-[#e5e7eb]">
+            <div className="flex items-center gap-2">
+              <CallAvatarBadge label="NS" color="#6b7280" />
+              <span className="text-[9px] text-[#6b7280]">Agent</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <motion.div className="w-[5px] h-[5px] rounded-full bg-[#22c55e]" animate={{ opacity: [1, 0.5, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+              <span className="text-[8px] text-[#9ca3af] tabular-nums">02:18</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] text-[#6b7280]">IVR</span>
+              <CallAvatarBadge label={payer} color="#FF612B" />
+            </div>
+          </div>
+          <div className="flex-1 overflow-hidden pt-2">
+            <LiveTranscript transcriptLines={TRANSCRIPT_LINES} payerLabel={payer} />
+          </div>
+        </div>
+      </AbstractProcessingLayout>
+    );
+  }
+
+  // Screen 3: Call ended + audio playback
+  return (
+    <AbstractProcessingLayout systemType="uhc-voice">
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-[#e5e7eb]">
+          <div className="flex items-center gap-1.5">
+            <Phone size={10} className="text-[#9ca3af]" />
+            <span className="text-[9px] text-[#6b7280]">Call Ended</span>
+          </div>
+          <span className="text-[8px] text-[#9ca3af] tabular-nums">Duration: 3:42</span>
+        </div>
+        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-1.5 scrollbar-none">
+          {TRANSCRIPT_LINES.map((line, i) => {
+            const isAgent = line.speaker === "agent";
+            const isRef = line.text.includes(trackingId);
+            return (
+              <div key={i} className={`flex items-start gap-1.5 ${isAgent ? "" : "flex-row-reverse"}`}>
+                <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center flex-shrink-0" style={{ background: isAgent ? "#6b7280" : "#FF612B" }}>
+                  <span className="text-[5px] text-white font-semibold">{isAgent ? "NS" : payer}</span>
+                </div>
+                <div className={`max-w-[80%] rounded-lg px-2 py-1 ${isAgent ? "bg-white border border-[#e5e7eb]" : "bg-[#FF612B]/8 border border-[#FF612B]/15"}`}>
+                  <span className={`text-[8px] leading-relaxed block ${isRef ? "text-[#FF612B] font-semibold" : "text-[#374151]"}`}>{line.text}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="py-2 border-t border-[#e5e7eb]">
+          <AudioWaveformPlayer />
+          {navigate && (
+            <div className="flex justify-center pt-1.5">
+              <button
+                onClick={() => navReady && navigate("call-center")}
+                disabled={!navReady}
+                className={`flex items-center gap-1 text-[8px] font-medium transition-all duration-300 ${
+                  navReady
+                    ? "text-[#6366f1] hover:text-[#4f46e5] cursor-pointer"
+                    : "text-[#c7c7d0] cursor-not-allowed"
+                }`}
+              >
+                <Phone size={8} />
+                <span>View in Call Center →</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </AbstractProcessingLayout>
+  );
+}
+
+// ── Live Transcript (voice call) ─────────────────────────────────────────────
+
+function LiveTranscript({ transcriptLines, payerLabel }: { transcriptLines: { speaker: "agent" | "ivr"; text: string }[]; payerLabel: string }) {
   const [visibleCount, setVisibleCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (visibleCount >= TRANSCRIPT_LINES.length) return;
+    if (visibleCount >= transcriptLines.length) return;
     const timer = setTimeout(() => setVisibleCount((c) => c + 1), visibleCount === 0 ? 600 : 1600);
     return () => clearTimeout(timer);
-  }, [visibleCount]);
+  }, [visibleCount, transcriptLines.length]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -1029,7 +1253,7 @@ function LiveTranscript() {
 
   return (
     <div ref={scrollRef} className="h-full overflow-y-auto px-4 space-y-2 scrollbar-none">
-      {TRANSCRIPT_LINES.slice(0, visibleCount).map((line, i) => {
+      {transcriptLines.slice(0, visibleCount).map((line, i) => {
         const isAgent = line.speaker === "agent";
         const isLatest = i === visibleCount - 1;
         return (
@@ -1041,7 +1265,7 @@ function LiveTranscript() {
             className={`flex items-start gap-2 ${isAgent ? "" : "flex-row-reverse"}`}
           >
             <CallAvatarBadge
-              label={isAgent ? "NS" : "UHC"}
+              label={isAgent ? "NS" : payerLabel}
               color={isAgent ? "#6b7280" : "#FF612B"}
               pulse={isLatest}
             />
@@ -1056,6 +1280,8 @@ function LiveTranscript() {
     </div>
   );
 }
+
+// ── Audio Waveform Player ─────────────────────────────────────────────────────
 
 function AudioWaveformPlayer() {
   const BAR_COUNT = 18;
@@ -1126,112 +1352,30 @@ function AudioWaveformPlayer() {
   );
 }
 
-function VoiceSubmitScreen({ screenIndex }: { screenIndex: number }) {
-  if (screenIndex === 0) {
-    return <SystemTransitionScreen fromSystem="northstar-pa" toSystem="uhc-voice" summaryText="PA form complete — submitting via UHC Voice/IVR" />;
-  }
-  // Screen 1: Dialing
-  if (screenIndex === 1) {
-    return (
-      <AbstractProcessingLayout systemType="uhc-voice">
-        <div className="flex flex-col items-center justify-center h-full gap-4">
-          <div className="flex items-center gap-4">
-            <CallAvatarBadge label="NS" color="#6b7280" pulse />
-            <motion.div className="flex gap-1.5" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
-              {[0, 1, 2].map((i) => (
-                <motion.div key={i} className="w-[4px] h-[4px] rounded-full bg-[#9ca3af]" animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.3 }} />
-              ))}
-            </motion.div>
-            <CallAvatarBadge label="UHC" color="#FF612B" />
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="text-[11px] text-[#6b7280] font-medium">
-              Calling...
-            </motion.span>
-            <span className="text-[9px] text-[#9ca3af]">1-800-555-0199</span>
-          </div>
-        </div>
-      </AbstractProcessingLayout>
-    );
-  }
-
-  // Screen 2: Connected with live transcript
-  if (screenIndex === 2) {
-    return (
-      <AbstractProcessingLayout systemType="uhc-voice">
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-[#e5e7eb]">
-            <div className="flex items-center gap-2">
-              <CallAvatarBadge label="NS" color="#6b7280" />
-              <span className="text-[9px] text-[#6b7280]">Agent</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <motion.div className="w-[5px] h-[5px] rounded-full bg-[#22c55e]" animate={{ opacity: [1, 0.5, 1] }} transition={{ duration: 2, repeat: Infinity }} />
-              <span className="text-[8px] text-[#9ca3af] tabular-nums">02:18</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] text-[#6b7280]">IVR</span>
-              <CallAvatarBadge label="UHC" color="#FF612B" />
-            </div>
-          </div>
-          <div className="flex-1 overflow-hidden pt-2">
-            <LiveTranscript />
-          </div>
-        </div>
-      </AbstractProcessingLayout>
-    );
-  }
-
-  // Screen 3: Call ended + audio playback
-  return (
-    <AbstractProcessingLayout systemType="uhc-voice">
-      <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between px-4 py-2 border-b border-[#e5e7eb]">
-          <div className="flex items-center gap-1.5">
-            <Phone size={10} className="text-[#9ca3af]" />
-            <span className="text-[9px] text-[#6b7280]">Call Ended</span>
-          </div>
-          <span className="text-[8px] text-[#9ca3af] tabular-nums">Duration: 3:42</span>
-        </div>
-        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-1.5 scrollbar-none">
-          {TRANSCRIPT_LINES.map((line, i) => {
-            const isAgent = line.speaker === "agent";
-            const isRef = line.text.includes("UHC-PA-2026-84521");
-            return (
-              <div key={i} className={`flex items-start gap-1.5 ${isAgent ? "" : "flex-row-reverse"}`}>
-                <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center flex-shrink-0" style={{ background: isAgent ? "#6b7280" : "#FF612B" }}>
-                  <span className="text-[5px] text-white font-semibold">{isAgent ? "NS" : "UHC"}</span>
-                </div>
-                <div className={`max-w-[80%] rounded-lg px-2 py-1 ${isAgent ? "bg-white border border-[#e5e7eb]" : "bg-[#FF612B]/8 border border-[#FF612B]/15"}`}>
-                  <span className={`text-[8px] leading-relaxed block ${isRef ? "text-[#FF612B] font-semibold" : "text-[#374151]"}`}>{line.text}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="py-2 border-t border-[#e5e7eb]">
-          <AudioWaveformPlayer />
-        </div>
-      </div>
-    </AbstractProcessingLayout>
-  );
-}
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // Fax Submit Screen (UHC — PA Form Fax after Voice Call)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const FAX_PAGES = [
-  { label: "PA Request Form", detail: "Patient demographics, procedure & diagnosis codes" },
-  { label: "Clinical Notes", detail: "Dr. Martinez — lumbar radiculopathy assessment" },
-  { label: "Imaging Referral", detail: "MRI results & specialist recommendation" },
-  { label: "Medical Necessity Letter", detail: "Clinical justification for epidural injection" },
-  { label: "Insurance Verification", detail: "UHC member eligibility confirmation" },
-];
-
 function FaxSubmitScreen({ screenIndex }: { screenIndex: number }) {
+  const data = useCaseDataOptional();
+
+  const physician = data?.physician ?? "Dr. Aisha Williams";
+  const icd10Desc = data?.procedure.icd10Description ?? "Lumbar Radiculopathy";
+  const faxNum = data?.submission.faxNumber ?? "1-800-555-0143";
+  const faxConf = data?.submission.faxConfirmation ?? "FX-84521";
+  const trackingId = data?.submission.trackingId ?? "UHC-PA-2026-84521";
+  const payer = data?.insurance.payer ?? "UHC";
+
+  const FAX_PAGES = [
+    { label: "PA Request Form", detail: "Patient demographics, procedure & diagnosis codes" },
+    { label: "Clinical Notes", detail: `${physician} — ${icd10Desc.toLowerCase()} assessment` },
+    { label: "Imaging Referral", detail: "Results & specialist recommendation" },
+    { label: "Medical Necessity Letter", detail: `Clinical justification for ${data?.procedure.name ?? "procedure"}` },
+    { label: "Insurance Verification", detail: `${payer} member eligibility confirmation` },
+  ];
+
   if (screenIndex === 0) {
-    return <SystemTransitionScreen fromSystem="uhc-voice" toSystem="uhc-fax" summaryText="Voice call complete — faxing PA form and supporting documents to UHC" />;
+    return <SystemTransitionScreen fromSystem="uhc-voice" toSystem="uhc-fax" summaryText={`Voice call complete — faxing PA form and supporting documents to ${payer}`} />;
   }
 
   // Screen 1: Generating PDF
@@ -1289,7 +1433,7 @@ function FaxSubmitScreen({ screenIndex }: { screenIndex: number }) {
           </motion.div>
           <div className="flex flex-col items-center gap-1">
             <span className="text-[11px] text-[#374151] font-medium">Transmitting Secure Fax</span>
-            <span className="text-[9px] text-[#9ca3af]">1-800-555-0143 — 5 pages</span>
+            <span className="text-[9px] text-[#9ca3af]">{faxNum} — 5 pages</span>
           </div>
           <div className="w-[180px]">
             <div className="flex justify-between mb-1">
@@ -1327,11 +1471,11 @@ function FaxSubmitScreen({ screenIndex }: { screenIndex: number }) {
         <div className="bg-white rounded-lg border border-[#e5e7eb] px-4 py-2.5 space-y-1">
           <div className="flex items-center justify-between gap-6">
             <span className="text-[8px] text-[#9ca3af]">Confirmation</span>
-            <span className="text-[9px] text-[#FF612B] font-semibold">FX-84521</span>
+            <span className="text-[9px] text-[#FF612B] font-semibold">{faxConf}</span>
           </div>
           <div className="flex items-center justify-between gap-6">
             <span className="text-[8px] text-[#9ca3af]">Fax Number</span>
-            <span className="text-[9px] text-[#374151]">1-800-555-0143</span>
+            <span className="text-[9px] text-[#374151]">{faxNum}</span>
           </div>
           <div className="flex items-center justify-between gap-6">
             <span className="text-[8px] text-[#9ca3af]">Pages Sent</span>
@@ -1339,10 +1483,10 @@ function FaxSubmitScreen({ screenIndex }: { screenIndex: number }) {
           </div>
           <div className="flex items-center justify-between gap-6">
             <span className="text-[8px] text-[#9ca3af]">Reference</span>
-            <span className="text-[9px] text-[#374151]">UHC-PA-2026-84521</span>
+            <span className="text-[9px] text-[#374151]">{trackingId}</span>
           </div>
         </div>
-        <span className="text-[8px] text-[#9ca3af]">PA form + clinical documents delivered to UHC</span>
+        <span className="text-[8px] text-[#9ca3af]">PA form + clinical documents delivered to {payer}</span>
       </div>
     </AbstractProcessingLayout>
   );
@@ -1353,20 +1497,35 @@ function FaxSubmitScreen({ screenIndex }: { screenIndex: number }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function RpaSubmitScreen({ screenIndex }: { screenIndex: number }) {
+  const data = useCaseDataOptional();
+
+  const patientName = data?.patient.name ?? "James Rodriguez";
+  const dob = data?.patient.dob ?? "07/22/1971";
+  const memberId = data?.insurance.memberId ?? "AET-882104376";
+  const cptCode = data?.procedure.cptCode ?? "74178";
+  const cptDesc = data?.procedure.cptDescription ?? "CT Abdomen & Pelvis";
+  const icd10Code = data?.procedure.icd10Code ?? "R10.9";
+  const icd10Desc = data?.procedure.icd10Description ?? "Abdominal Pain";
+  const physician = data?.physician ?? "Dr. Michael Chen";
+  const trackingId = data?.submission.trackingId ?? "AET-PA-2026-33108";
+  const expectedResponse = data?.submission.expectedResponse ?? "5-7 business days";
+  const payerFull = data?.insurance.payerFull ?? "Aetna";
+  const docList = data?.documents.list ?? ["CT Indication Notes", "Lab Results (CBC, CMP)", "Referral Letter"];
+
   if (screenIndex === 0) {
-    return <SystemTransitionScreen fromSystem="northstar-pa" toSystem="aetna-portal" summaryText="Portal credentials authorized — launching Aetna RPA bot" />;
+    return <SystemTransitionScreen fromSystem="northstar-pa" toSystem="aetna-portal" summaryText={`Portal credentials authorized — launching ${payerFull} RPA bot`} />;
   }
   if (screenIndex === 1) {
     return (
       <AbstractProcessingLayout systemType="aetna-portal">
         <div className="p-4 h-full overflow-hidden">
-          <span className="text-[10px] text-[#8b95a5] block mb-3">Authenticating to Aetna Portal</span>
+          <span className="text-[10px] text-[#8b95a5] block mb-3">Authenticating to {payerFull} Portal</span>
           <ActivitySteps
             steps={[
               { label: "Launching headless browser", detail: "Chromium instance initialized" },
               { label: "Injecting provider credentials", detail: "Encrypted credential injection" },
               { label: "Completing MFA challenge", detail: "TOTP code verified" },
-              { label: "Authenticated", detail: "provider.aetna.com — session active" },
+              { label: "Authenticated", detail: `provider.${payerFull.toLowerCase()}.com — session active` },
             ]}
             delayPerStep={1500}
           />
@@ -1380,12 +1539,12 @@ function RpaSubmitScreen({ screenIndex }: { screenIndex: number }) {
         <div className="h-full overflow-y-auto">
           <FormAutoFill
             fields={[
-              { label: "Patient Name", value: "James Rodriguez" },
-              { label: "Date of Birth", value: "07/22/1971" },
-              { label: "Member ID", value: "AET-882104376" },
-              { label: "CPT Code", value: "74178 — CT Abdomen & Pelvis" },
-              { label: "ICD-10", value: "R10.9 — Abdominal Pain" },
-              { label: "Ordering Physician", value: "Dr. Michael Chen" },
+              { label: "Patient Name", value: patientName },
+              { label: "Date of Birth", value: dob },
+              { label: "Member ID", value: memberId },
+              { label: "CPT Code", value: `${cptCode} — ${cptDesc}` },
+              { label: "ICD-10", value: `${icd10Code} — ${icd10Desc}` },
+              { label: "Ordering Physician", value: physician },
             ]}
             delayStart={200}
           />
@@ -1399,13 +1558,12 @@ function RpaSubmitScreen({ screenIndex }: { screenIndex: number }) {
         <div className="p-4 h-full overflow-hidden">
           <span className="text-[10px] text-[#8b95a5] block mb-3">Uploading Clinical Documents</span>
           <ActivitySteps
-            steps={[
-              { label: "CT Indication Notes", detail: "Uploaded — 142 KB" },
-              { label: "Lab Results (CBC, CMP)", detail: "Uploaded — 89 KB" },
-              { label: "Referral Letter", detail: "Uploaded — 67 KB" },
-            ]}
+            steps={docList.map(doc => ({
+              label: doc,
+              detail: "Uploaded",
+            }))}
             delayPerStep={2000}
-            doneMessage="3/3 documents attached to submission"
+            doneMessage={`${docList.length}/${docList.length} documents attached to submission`}
           />
         </div>
       </AbstractProcessingLayout>
@@ -1418,10 +1576,10 @@ function RpaSubmitScreen({ screenIndex }: { screenIndex: number }) {
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring" }}>
           <CheckCircle size={28} className="text-[#7C3AED]" />
         </motion.div>
-        <span className="text-[14px] text-[#56166A] font-bold">Aetna PA Submitted</span>
-        <span className="text-[10px] text-[#8b95a5]">Reference: AET-PA-2026-33108</span>
+        <span className="text-[14px] text-[#56166A] font-bold">{payerFull} PA Submitted</span>
+        <span className="text-[10px] text-[#8b95a5]">Reference: {trackingId}</span>
         <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-[8px] text-[#8b95a5]">
-          James Rodriguez • CT Abdomen/Pelvis • Est. 5-7 business days
+          {patientName} • {cptDesc} • Est. {expectedResponse}
         </motion.span>
       </div>
     </AbstractProcessingLayout>

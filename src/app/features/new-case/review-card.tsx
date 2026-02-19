@@ -9,15 +9,37 @@ import {
   CheckCircle,
   Pencil,
 } from "lucide-react";
+import type { CaseScreenData } from "./agent-desktop/case-data-context";
 
 // ── ReviewCard ──────────────────────────────────────────────────────────────
 
 interface ReviewCardProps {
   onApprove: () => void;
   onEdit: () => void;
+  caseData?: CaseScreenData | null;
 }
 
-export function ReviewCard({ onApprove, onEdit }: ReviewCardProps) {
+export function ReviewCard({ onApprove, onEdit, caseData }: ReviewCardProps) {
+  const d = caseData;
+
+  const patientName = d?.patient.name || "—";
+  const dob = d ? `${d.patient.dob} (Age ${d.patient.age})` : "—";
+  const mrn = d?.patient.mrn || "—";
+  const procedureName = d?.procedure.cptDescription || "—";
+  const cptCode = d?.procedure.cptCode || "—";
+  const diagnosis = d ? `${d.procedure.icd10Description} (${d.procedure.icd10Code})` : "—";
+  const physician = d?.physician || "—";
+  const payerLine = d ? `${d.insurance.payerFull} — ${d.insurance.planType}` : "—";
+  const memberId = d?.insurance.memberId || "—";
+  const channelLabel = d?.submission.channelLabel || "—";
+  const docList = d?.documents.list ?? [
+    "Conservative Therapy Records (8 weeks PT)",
+    "Specialist Referral Letter (Feb 10)",
+    "Physical Exam Notes (Feb 12)",
+    "Medication History",
+  ];
+  const approvalLikelihood = d?.approvalLikelihood ?? 92;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -40,35 +62,30 @@ export function ReviewCard({ onApprove, onEdit }: ReviewCardProps) {
       <div className="px-4 py-3 flex flex-col gap-3">
         {/* Patient */}
         <ReviewSection icon={<User size={13} />} title="Patient">
-          <ReviewRow label="Name" value="Margaret Thompson" />
-          <ReviewRow label="DOB" value="03/15/1958 (Age 67)" />
-          <ReviewRow label="MRN" value="NHC-2024-88421" />
+          <ReviewRow label="Name" value={patientName} />
+          <ReviewRow label="DOB" value={dob} />
+          <ReviewRow label="MRN" value={mrn} />
         </ReviewSection>
 
         {/* Procedure */}
         <ReviewSection icon={<Stethoscope size={13} />} title="Procedure">
-          <ReviewRow label="Procedure" value="MRI Cervical Spine w/o Contrast" />
-          <ReviewRow label="CPT Code" value="72141" />
-          <ReviewRow label="Diagnosis" value="Cervical Radiculopathy (M54.12)" />
-          <ReviewRow label="Physician" value="Dr. Sarah Patel" />
+          <ReviewRow label="Procedure" value={procedureName} />
+          <ReviewRow label="CPT Code" value={cptCode} />
+          <ReviewRow label="Diagnosis" value={diagnosis} />
+          <ReviewRow label="Physician" value={physician} />
         </ReviewSection>
 
         {/* Payer */}
         <ReviewSection icon={<Shield size={13} />} title="Payer & Channel">
-          <ReviewRow label="Payer" value="BlueCross BlueShield — PPO Gold" />
-          <ReviewRow label="Member ID" value="BCB-447821953" />
-          <ReviewRow label="Channel" value="X12 278 API — fastest (24-48hrs)" />
+          <ReviewRow label="Payer" value={payerLine} />
+          <ReviewRow label="Member ID" value={memberId} />
+          <ReviewRow label="Channel" value={channelLabel} />
         </ReviewSection>
 
         {/* Documents */}
         <ReviewSection icon={<FileText size={13} />} title="Documents Attached">
           <div className="flex flex-col gap-1">
-            {[
-              "Conservative Therapy Records (8 weeks PT)",
-              "Specialist Referral Letter (Feb 10)",
-              "Physical Exam Notes (Feb 12)",
-              "Medication History",
-            ].map((doc) => (
+            {docList.map((doc) => (
               <div key={doc} className="flex items-center gap-1.5">
                 <CheckCircle size={11} className="text-[#099F69] shrink-0" />
                 <span className="text-[11px] text-text-secondary">{doc}</span>
@@ -80,7 +97,7 @@ export function ReviewCard({ onApprove, onEdit }: ReviewCardProps) {
         {/* Approval gauge inline */}
         <div className="flex items-center gap-2 bg-[#dcfce7] rounded-lg px-3 py-2">
           <TrendingUp size={14} className="text-[#099F69]" />
-          <span className="text-[12px] font-semibold text-[#099F69]">92% Approval Likelihood</span>
+          <span className="text-[12px] font-semibold text-[#099F69]">{approvalLikelihood}% Approval Likelihood</span>
           <span className="text-[11px] text-[#099F69]/70">— High confidence</span>
         </div>
       </div>

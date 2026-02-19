@@ -1,13 +1,18 @@
 import { motion } from "motion/react";
 import { Lock, Globe, FileText, Upload, ShieldCheck } from "lucide-react";
 
-const rpaPermissions = [
-  { icon: Globe, label: "Portal Login", desc: "Authenticate to Aetna provider portal" },
-  { icon: FileText, label: "Form Submission", desc: "Auto-fill and submit PA request form" },
-  { icon: Upload, label: "Document Upload", desc: "Attach clinical documents to submission" },
-];
+function getRpaPermissions(payer: string) {
+  return [
+    { icon: Globe, label: "Portal Login", desc: `Authenticate to ${payer} provider portal` },
+    { icon: FileText, label: "Form Submission", desc: "Auto-fill and submit PA request form" },
+    { icon: Upload, label: "Document Upload", desc: "Attach clinical documents to submission" },
+  ];
+}
 
-export function RpaConsentCard({ onAuthorize, onDeny }: { onAuthorize: () => void; onDeny: () => void }) {
+export function RpaConsentCard({ onAuthorize, onDeny, patientName, procedure, payerName }: { onAuthorize: () => void; onDeny: () => void; patientName?: string; procedure?: string; payerName?: string }) {
+  const displayPatient = patientName ?? "James Rodriguez";
+  const displayProcedure = procedure ?? "CT Abdomen & Pelvis";
+  const displayPayer = payerName ?? "Aetna";
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -26,12 +31,12 @@ export function RpaConsentCard({ onAuthorize, onDeny }: { onAuthorize: () => voi
               Portal Credential Authorization
             </span>
             <span className="text-[11px] text-[#8896a6]">
-              Aetna provider portal access
+              {displayPayer} provider portal access
             </span>
           </div>
         </div>
         <p className="text-[13px] text-[#6b7c93] leading-[1.6]">
-          The RPA bot needs your provider credentials to log into the Aetna portal and submit the PA request for <strong>James Rodriguez</strong> (CT Abdomen &amp; Pelvis).
+          The RPA bot needs your provider credentials to log into the {displayPayer} portal and submit the PA request for <strong>{displayPatient}</strong> ({displayProcedure}).
         </p>
       </div>
 
@@ -41,7 +46,7 @@ export function RpaConsentCard({ onAuthorize, onDeny }: { onAuthorize: () => voi
           PORTAL ACTIONS
         </span>
         <div className="flex flex-col gap-1.5">
-          {rpaPermissions.map((perm, i) => {
+          {getRpaPermissions(displayPayer).map((perm, i) => {
             const Icon = perm.icon;
             return (
               <motion.div
