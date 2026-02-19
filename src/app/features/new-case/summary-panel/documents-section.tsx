@@ -42,7 +42,7 @@ function DocumentRow({ doc, index, dispatch }: { doc: DocumentRequirement; index
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2, delay: index * 0.05 }}
-      className="flex items-center gap-2 py-1.5 rounded-md hover:bg-[#fafbfc] transition-colors px-1 -mx-1"
+      className="flex items-center gap-2 py-1.5 rounded-md hover:bg-surface-hover transition-colors px-1 -mx-1"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -84,7 +84,7 @@ function DocumentRow({ doc, index, dispatch }: { doc: DocumentRequirement; index
           </button>
           <button
             onClick={() => updateStatus("na")}
-            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#f0f2f4] text-text-muted hover:bg-[#e5e5e5] transition-colors cursor-pointer"
+            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-surface-hover text-text-muted hover:bg-icon-active-bg transition-colors cursor-pointer"
           >
             <Ban size={8} />
             N/A
@@ -165,7 +165,7 @@ export function DocumentsSection({ documents, dispatch, sectionStatus, isCollaps
       </AnimatePresence>
 
       {/* Divider */}
-      <div className="mt-2 border-t border-[#f0f2f4]" />
+      <div className="mt-2 border-t border-border-default" />
     </motion.div>
   );
 }

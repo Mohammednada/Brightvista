@@ -482,18 +482,18 @@ export const NewCasePage = forwardRef<NewCasePageHandle, { onBack: () => void; o
 
       <div className="flex-1 min-w-0 flex flex-row h-full overflow-hidden">
         {/* Left column — Chat */}
-        <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden bg-white border-r border-border-default">
+        <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden bg-background border-r border-border-default">
           {/* Header */}
-          <div className="bg-white shrink-0 w-full sticky top-0 z-10 border-b border-border-default">
+          <div className="bg-background shrink-0 w-full sticky top-0 z-10 border-b border-border-default">
             <div className="flex items-center gap-3 px-4 h-[56px]">
               <button
                 onClick={onBack}
-                className="w-8 h-8 flex items-center justify-center rounded-[10px] hover:bg-[#f0f2f4] cursor-pointer transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-[10px] hover:bg-surface-hover cursor-pointer transition-colors"
               >
-                <ArrowLeft size={18} className="text-[#565656]" />
+                <ArrowLeft size={18} className="text-icon-default" />
               </button>
               <div className="flex items-center gap-2">
-                <p className="text-[16px] text-[#1a1a1a] font-semibold">
+                <p className="text-[16px] text-text-primary font-semibold">
                   {caseState.patient.name ? `${caseState.caseId} — ${caseState.patient.name}` : "New Case"}
                 </p>
                 {agentModeActive && (

@@ -67,7 +67,7 @@ function FieldRow({ label, value, confidence, isEditing, onChange, delay = 0 }: 
           type="text"
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 min-w-0 px-2 py-0.5 text-[12px] text-text-primary text-right bg-white border border-border-default rounded-md focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
+          className="flex-1 min-w-0 px-2 py-0.5 text-[12px] text-text-primary text-right bg-background border border-border-default rounded-md focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
         />
       ) : (
         <span className="text-[12px] text-text-primary font-medium text-right truncate">
@@ -194,7 +194,7 @@ export function PatientSection({ patient, confidence, dispatch, sectionStatus, i
       </AnimatePresence>
 
       {/* Divider */}
-      <div className="mt-2 border-t border-[#f0f2f4]" />
+      <div className="mt-2 border-t border-border-default" />
     </motion.div>
   );
 }

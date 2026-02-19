@@ -9,7 +9,7 @@ export function KpiItem({
   change,
   changeLabel,
   changeType,
-  valueColor = "#1b2124",
+  valueColor,
   barChart = false,
   onAskAgent,
 }: KpiItemProps) {
@@ -18,7 +18,7 @@ export function KpiItem({
   return (
     <div
       className="min-w-0 px-6 pt-4 pb-5 relative cursor-pointer transition-colors duration-150 h-full"
-      style={{ backgroundColor: hovered ? "#f7fafc" : "transparent" }}
+      style={{ backgroundColor: hovered ? "var(--color-surface-bg)" : "transparent" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -26,7 +26,7 @@ export function KpiItem({
         <span
           className="text-[32px] leading-[48px] tracking-[0.32px] font-semibold"
           style={{
-            color: valueColor,
+            color: valueColor || "var(--color-text-primary)",
             fontVariationSettings: "'wdth' 100",
           }}
         >

@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { Sun, Moon } from "lucide-react";
+import { useClickOutside } from "@/shared/hooks/use-click-outside";
 import workspaceSvg from "@/assets/icons/workspace-icon-paths";
 import navSvg from "@/assets/icons/nav-icon-paths";
 import brightvistLogo from "@/assets/brightvista-logo.png";
@@ -135,7 +137,7 @@ function IconSettings({ color }: { color: string }) {
   );
 }
 
-export function Sidebar({ activeRole, onRoleChange, currentView, onNavigate }: { activeRole: RoleId; onRoleChange: (role: RoleId) => void; currentView?: string; onNavigate?: (view: string) => void }) {
+export function Sidebar({ activeRole, onRoleChange, currentView, onNavigate, theme, onToggleTheme }: { activeRole: RoleId; onRoleChange: (role: RoleId) => void; currentView?: string; onNavigate?: (view: string) => void; theme?: "light" | "dark"; onToggleTheme?: () => void }) {
   const [activeIndex, setActiveIndex] = useState(1); // AI Dashboard is active by default
 
   const isCoordinator = activeRole === "pa-coordinator";
@@ -162,7 +164,7 @@ export function Sidebar({ activeRole, onRoleChange, currentView, onNavigate }: {
     : activeIndex;
 
   return (
-    <div className="flex flex-col items-center bg-white border-r border-border-default w-[52px] h-full shrink-0">
+    <div className="flex flex-col items-center bg-background border-r border-border-default w-[52px] h-full shrink-0">
       {/* Logo — fixed height matches all top nav bars */}
       <div className="h-[56px] flex items-center justify-center shrink-0 border-b border-border-default">
         <div className="w-[36px] h-[36px] flex items-center justify-center">
@@ -178,12 +180,12 @@ export function Sidebar({ activeRole, onRoleChange, currentView, onNavigate }: {
               onClick={() => handleNavClick(index)}
               className={`relative w-[36px] h-[36px] flex items-center justify-center rounded-[10px] transition-colors cursor-pointer ${
                 derivedActiveIndex === index
-                  ? "bg-[#e4e8eb]"
-                  : "hover:bg-[#f0f2f4]"
+                  ? "bg-icon-active-bg"
+                  : "hover:bg-surface-hover"
               }`}
             >
               <item.Icon
-                color={derivedActiveIndex === index ? "#1F425F" : "#565656"}
+                color={derivedActiveIndex === index ? "var(--color-primary-brand)" : "var(--color-icon-default)"}
               />
             </button>
           </SidebarTooltip>
@@ -201,10 +203,10 @@ export function Sidebar({ activeRole, onRoleChange, currentView, onNavigate }: {
             </div>
           </SidebarTooltip>
           <SidebarTooltip label="Add Workspace">
-            <div className="flex items-center justify-center p-[4px] rounded-[6px] relative cursor-pointer hover:bg-[#f5f5f5]">
+            <div className="flex items-center justify-center p-[4px] rounded-[6px] relative cursor-pointer hover:bg-surface-hover">
               <div className="absolute border border-border-default inset-0 pointer-events-none rounded-[6px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.04)]" />
               <svg className="block size-[16px]" fill="none" viewBox="0 0 16 16">
-                <path d={workspaceSvg.p1b9e1d40} fill="#767676" />
+                <path d={workspaceSvg.p1b9e1d40} fill="var(--color-icon-default)" />
               </svg>
             </div>
           </SidebarTooltip>
@@ -217,18 +219,73 @@ export function Sidebar({ activeRole, onRoleChange, currentView, onNavigate }: {
       {/* Footer */}
       <div className="flex flex-col items-center py-2 gap-0.5 mt-auto">
         <SidebarTooltip label="Log Out">
-          <button className="w-[36px] h-[36px] flex items-center justify-center rounded-[10px] hover:bg-[#f0f2f4] cursor-pointer">
-            <IconLogout color="#1F425F" />
+          <button className="w-[36px] h-[36px] flex items-center justify-center rounded-[10px] hover:bg-surface-hover cursor-pointer">
+            <IconLogout color="var(--color-primary-brand)" />
           </button>
         </SidebarTooltip>
-        <SidebarTooltip label="Settings">
-          <button className="w-[36px] h-[36px] flex items-center justify-center rounded-[10px] hover:bg-[#f0f2f4] cursor-pointer">
-            <IconSettings color="#1F425F" />
-          </button>
-        </SidebarTooltip>
+        <SettingsDropdown theme={theme} onToggleTheme={onToggleTheme} />
         <div className="h-3" />
         <RoleSwitcher activeRole={activeRole} onRoleChange={onRoleChange} />
       </div>
+    </div>
+  );
+}
+
+function SettingsDropdown({ theme, onToggleTheme }: { theme?: "light" | "dark"; onToggleTheme?: () => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useClickOutside(ref, () => setOpen(false));
+
+  const isDark = theme === "dark";
+
+  return (
+    <div ref={ref} className="relative">
+      <SidebarTooltip label="Settings">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className={`w-[36px] h-[36px] flex items-center justify-center rounded-[10px] hover:bg-surface-hover cursor-pointer transition-colors ${open ? "bg-icon-active-bg" : ""}`}
+        >
+          <IconSettings color="var(--color-primary-brand)" />
+        </button>
+      </SidebarTooltip>
+
+      {open && (
+        <div className="absolute left-full bottom-0 ml-2.5 z-50 w-[200px]">
+          <div className="bg-card-bg rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.12)] border border-border-default py-2 overflow-hidden">
+            <div className="px-3 py-2">
+              <p className="text-[11px] leading-[16px] text-text-muted uppercase tracking-wider font-semibold">
+                Settings
+              </p>
+            </div>
+
+            {/* Dark Mode toggle */}
+            {onToggleTheme && (
+              <button
+                onClick={onToggleTheme}
+                className="w-full flex items-center justify-between px-3 py-2 cursor-pointer transition-colors hover:bg-surface-hover"
+              >
+                <div className="flex items-center gap-2.5">
+                  {isDark ? (
+                    <Sun size={16} style={{ color: "var(--color-text-secondary)" }} />
+                  ) : (
+                    <Moon size={16} style={{ color: "var(--color-text-secondary)" }} />
+                  )}
+                  <span className="text-[13px] leading-[18px] text-text-primary">
+                    {isDark ? "Light Mode" : "Dark Mode"}
+                  </span>
+                </div>
+                <div
+                  className={`w-[32px] h-[18px] rounded-full relative transition-colors ${isDark ? "bg-brand" : "bg-switch-background"}`}
+                >
+                  <div
+                    className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white shadow-sm transition-transform ${isDark ? "left-[16px]" : "left-[2px]"}`}
+                  />
+                </div>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

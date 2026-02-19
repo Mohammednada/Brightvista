@@ -38,9 +38,9 @@ export function MyCaseQueue() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="bg-surface-dropdown rounded-lg h-[30px] px-2.5 flex items-center gap-1 cursor-pointer hover:bg-[#dde8ed]">
+          <button className="bg-surface-dropdown rounded-lg h-[30px] px-2.5 flex items-center gap-1 cursor-pointer hover:bg-surface-hover">
             <span
-              className="text-[14px] leading-[18px] text-[#111417] font-semibold"
+              className="text-[14px] leading-[18px] text-dropdown-text font-semibold"
             >
               Filter
             </span>
@@ -49,7 +49,7 @@ export function MyCaseQueue() {
       </div>
 
       {/* Table */}
-      <div className="w-full overflow-x-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#c4cdd5 transparent" }}>
+      <div className="w-full overflow-x-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "var(--color-scrollbar-thumb) transparent" }}>
         <div style={{ minWidth: 780 }}>
           {/* Table Header */}
           <div className="bg-surface-bg rounded-t-lg py-2 px-4">
@@ -70,7 +70,7 @@ export function MyCaseQueue() {
             const ss = statusStyles[task.status] || { bg: "bg-[#f0f4f8]", text: "text-text-secondary", label: task.status };
             return (
               <div key={task.id}>
-                <div className="grid grid-cols-[100px_140px_1fr_80px_100px_100px_100px] gap-3 items-center px-4 py-2.5 hover:bg-[#fafbfc] transition-colors group">
+                <div className="grid grid-cols-[100px_140px_1fr_80px_100px_100px_100px] gap-3 items-center px-4 py-2.5 hover:bg-surface-hover transition-colors group">
                   <span
                     className="text-[14px] leading-[22px] text-[#3385f0] cursor-pointer hover:underline font-medium"
                   >
@@ -116,7 +116,7 @@ export function MyCaseQueue() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            className="flex items-center gap-1 h-[30px] px-1.5 rounded cursor-pointer hover:bg-[#e4e8eb]"
+            className="flex items-center gap-1 h-[30px] px-1.5 rounded cursor-pointer hover:bg-icon-active-bg"
           >
             <ChevronLeft size={16} className="text-[#9caeb8]" />
             <span
@@ -127,7 +127,7 @@ export function MyCaseQueue() {
           </button>
           <button
             onClick={() => setCurrentPage(currentPage + 1)}
-            className="flex items-center gap-1 h-[30px] px-1.5 rounded cursor-pointer hover:bg-[#e4e8eb]"
+            className="flex items-center gap-1 h-[30px] px-1.5 rounded cursor-pointer hover:bg-icon-active-bg"
           >
             <span
               className="text-[14px] leading-[18px] text-[#3385f0] font-semibold"

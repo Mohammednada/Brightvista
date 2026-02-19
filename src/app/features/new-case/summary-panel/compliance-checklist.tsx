@@ -109,7 +109,7 @@ export function ComplianceChecklist({ documents, dispatch }: ComplianceChecklist
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.15 }}
-      className="bg-white rounded-2xl border border-border-default overflow-hidden"
+      className="bg-card-bg rounded-2xl border border-border-default overflow-hidden"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border-default">

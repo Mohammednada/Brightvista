@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ErrorBoundary } from "@/shared/components/error-boundary";
+import { useTheme } from "@/shared/hooks/use-theme";
 import { Sidebar } from "./features/sidebar/sidebar";
 import { DashboardHeader } from "./features/dashboard/header";
 import { KpiCards } from "./features/dashboard/kpi-cards";
@@ -46,6 +47,7 @@ function ManagerMainContent({ isPanelOpen, onTogglePanel, onAskAgent }: { isPane
 }
 
 export default function App() {
+  const { theme, toggleTheme } = useTheme();
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [activeRole, setActiveRole] = useState<RoleId>("pa-manager");
   const [currentView, setCurrentView] = useState("dashboard");
@@ -77,9 +79,9 @@ export default function App() {
   const showRightPanel = !(activeRole === "pa-coordinator" && (currentView === "new-case" || currentView === "call-center"));
 
   return (
-    <div className="flex h-screen w-screen bg-white overflow-hidden">
+    <div className="flex h-screen w-screen bg-background overflow-hidden">
       <ErrorBoundary>
-        <Sidebar activeRole={activeRole} onRoleChange={handleRoleChange} currentView={currentView} onNavigate={handleNavigate} />
+        <Sidebar activeRole={activeRole} onRoleChange={handleRoleChange} currentView={currentView} onNavigate={handleNavigate} theme={theme} onToggleTheme={toggleTheme} />
       </ErrorBoundary>
       <ErrorBoundary>
         {activeRole === "pa-manager" ? (

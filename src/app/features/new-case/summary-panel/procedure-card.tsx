@@ -34,7 +34,7 @@ export function ProcedureCard({ procedure, dispatch }: ProcedureCardProps) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.1 }}
-      className="bg-white rounded-2xl border border-border-default overflow-hidden"
+      className="bg-card-bg rounded-2xl border border-border-default overflow-hidden"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border-default">
@@ -73,7 +73,7 @@ export function ProcedureCard({ procedure, dispatch }: ProcedureCardProps) {
               type="text"
               value={procedure.cptCode || ""}
               onChange={(e) => update({ cptCode: e.target.value })}
-              className="w-full px-2 py-1 text-[13px] text-text-primary bg-white border border-border-default rounded-lg focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
+              className="w-full px-2 py-1 text-[13px] text-text-primary bg-card-bg border border-border-default rounded-lg focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
               placeholder="e.g. 72141"
             />
           ) : (
@@ -101,7 +101,7 @@ export function ProcedureCard({ procedure, dispatch }: ProcedureCardProps) {
               type="text"
               value={procedure.icd10Code || ""}
               onChange={(e) => update({ icd10Code: e.target.value })}
-              className="w-full px-2 py-1 text-[13px] text-text-primary bg-white border border-border-default rounded-lg focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
+              className="w-full px-2 py-1 text-[13px] text-text-primary bg-card-bg border border-border-default rounded-lg focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
               placeholder="e.g. M54.12"
             />
           ) : (
@@ -128,7 +128,7 @@ export function ProcedureCard({ procedure, dispatch }: ProcedureCardProps) {
               type="text"
               value={procedure.orderingPhysician || ""}
               onChange={(e) => update({ orderingPhysician: e.target.value })}
-              className="w-full px-2 py-1 text-[13px] text-text-primary bg-white border border-border-default rounded-lg focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
+              className="w-full px-2 py-1 text-[13px] text-text-primary bg-card-bg border border-border-default rounded-lg focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
               placeholder="e.g. Dr. Sarah Patel"
             />
           ) : (

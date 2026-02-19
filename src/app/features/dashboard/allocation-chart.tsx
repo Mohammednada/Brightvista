@@ -34,17 +34,17 @@ export function AllocationChart() {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setMonthOpen(!monthOpen)}
-              className="bg-surface-dropdown rounded-lg h-[30px] px-2.5 flex items-center gap-1 cursor-pointer hover:bg-[#dde8ed]"
+              className="bg-surface-dropdown rounded-lg h-[30px] px-2.5 flex items-center gap-1 cursor-pointer hover:bg-surface-hover"
             >
               <span
-                className="text-[14px] leading-[18px] text-[#111417] font-semibold"
+                className="text-[14px] leading-[18px] text-dropdown-text font-semibold"
               >
                 {selectedMonth}
               </span>
-              <ChevronDown size={16} className="text-[#111417]" />
+              <ChevronDown size={16} className="text-dropdown-text" />
             </button>
             {monthOpen && (
-              <div className="absolute right-0 top-full mt-1 bg-white border border-border-default rounded-lg shadow-lg z-20 w-[140px] max-h-[200px] overflow-y-auto">
+              <div className="absolute right-0 top-full mt-1 bg-card-bg border border-border-default rounded-lg shadow-lg z-20 w-[140px] max-h-[200px] overflow-y-auto">
                 {allocationMonths.map((m) => (
                   <button
                     key={m}

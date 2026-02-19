@@ -47,6 +47,13 @@
   --color-surface-bg: #f7fafc;
   --color-surface-hover: #f0f2f4;
   --color-surface-dropdown: #ebf2f5;
+  --color-icon-default: #565656;
+  --color-icon-active-bg: #e4e8eb;
+  --color-dropdown-text: #111417;
+  --color-card-bg: #ffffff;
+  --color-scrollbar-thumb: #d0d8de;
+  --color-scrollbar-thumb-hover: #a0aeb8;
+  --color-scrollbar-track: #c3d3db;
 }
 
 .dark {
@@ -68,6 +75,8 @@
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: oklch(0.269 0 0);
   --input: oklch(0.269 0 0);
+  --input-background: #1e2a32;
+  --switch-background: #4a5568;
   --ring: oklch(0.439 0 0);
   --font-weight-medium: 500;
   --font-weight-normal: 400;
@@ -84,6 +93,21 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+  --color-primary-brand: #5ba3d9;
+  --color-border-default: #2d3748;
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: #a0aec0;
+  --color-text-muted: #718096;
+  --color-surface-bg: #1a202c;
+  --color-surface-hover: #2d3748;
+  --color-surface-dropdown: #2a3444;
+  --color-icon-default: #a0aec0;
+  --color-icon-active-bg: #2d3748;
+  --color-dropdown-text: #e2e8f0;
+  --color-card-bg: #1e2630;
+  --color-scrollbar-thumb: #4a5568;
+  --color-scrollbar-thumb-hover: #718096;
+  --color-scrollbar-track: #2d3748;
 }
 
 @theme inline {
@@ -125,14 +149,18 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-brand: #1F425F;
-  --color-border-default: #e5e5e5;
-  --color-text-primary: #1b2124;
-  --color-text-secondary: #4d595e;
-  --color-text-muted: #97a6b4;
-  --color-surface-bg: #f7fafc;
-  --color-surface-hover: #f0f2f4;
-  --color-surface-dropdown: #ebf2f5;
+  --color-brand: var(--color-primary-brand);
+  --color-border-default: var(--color-border-default);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-surface-bg: var(--color-surface-bg);
+  --color-surface-hover: var(--color-surface-hover);
+  --color-surface-dropdown: var(--color-surface-dropdown);
+  --color-icon-default: var(--color-icon-default);
+  --color-icon-active-bg: var(--color-icon-active-bg);
+  --color-dropdown-text: var(--color-dropdown-text);
+  --color-card-bg: var(--color-card-bg);
 }
 
 @layer base {
@@ -148,7 +176,7 @@
   /* Custom scrollbar styling */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #c3d3db transparent;
+    scrollbar-color: var(--color-scrollbar-track) transparent;
   }
 
   *::-webkit-scrollbar {
@@ -161,12 +189,12 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background-color: #d0d8de;
+    background-color: var(--color-scrollbar-thumb);
     border-radius: 9999px;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background-color: #a0aeb8;
+    background-color: var(--color-scrollbar-thumb-hover);
   }
 
   *::-webkit-scrollbar-corner {

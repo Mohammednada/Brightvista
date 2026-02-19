@@ -10,7 +10,7 @@ export function NextBestActionCard({ label, onAction }: { label: string; onActio
       onClick={onAction}
       className="group w-full cursor-pointer"
     >
-      <div className="inline-flex items-center gap-1.5 bg-[#f0f7ff] rounded-full border border-[#d6e6f5] px-3 py-1.5 transition-all group-hover:border-[#1F425F]/30 group-hover:shadow-sm">
+      <div className="inline-flex items-center gap-1.5 bg-surface-bg rounded-full border border-border-default px-3 py-1.5 transition-all group-hover:border-brand/30 group-hover:shadow-sm">
         <Zap size={12} className="text-brand shrink-0" />
         <span
           className="text-[13px] leading-[18px] text-brand font-medium"

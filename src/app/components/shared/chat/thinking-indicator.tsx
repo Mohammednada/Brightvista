@@ -39,16 +39,16 @@ export function ThinkingIndicator({ steps }: { steps: string[] }) {
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <circle cx="7" cy="7" r="5.5" stroke="#e0e5e9" strokeWidth="1.5" />
+                <circle cx="7" cy="7" r="5.5" stroke="var(--color-border-default)" strokeWidth="1.5" />
                 <path d="M7 1.5A5.5 5.5 0 0 1 12.5 7" stroke="var(--color-primary-brand)" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </motion.div>
           ) : (
-            <div className="w-[14px] h-[14px] shrink-0 rounded-full border border-[#e0e5e9]" />
+            <div className="w-[14px] h-[14px] shrink-0 rounded-full border border-[var(--color-border-default)]" />
           )}
           <span
             className={`text-[12px] leading-[18px] ${
-              i <= currentStep ? "text-text-secondary" : "text-[#c0c8ce]"
+              i <= currentStep ? "text-text-secondary" : "text-text-muted"
             }${i === currentStep ? " font-medium" : ""}`}
           >
             {step}

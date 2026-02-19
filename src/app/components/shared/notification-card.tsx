@@ -23,7 +23,7 @@ export function NotificationCard({
   };
 
   return (
-    <div className="flex-1 min-w-0 bg-white rounded-2xl border border-border-default p-4 flex flex-col gap-3">
+    <div className="flex-1 min-w-0 bg-card-bg rounded-2xl border border-border-default p-4 flex flex-col gap-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0">
@@ -80,16 +80,16 @@ export function NotificationCard({
             </span>
           </div>
           <p
-            className="text-[12px] leading-[1.5] text-[#565656] tracking-[0.2px] font-semibold"
+            className="text-[12px] leading-[1.5] text-text-secondary tracking-[0.2px] font-semibold"
           >
             {recommendation}
           </p>
         </div>
         <button
           onClick={() => onAskAgent?.(recommendation)}
-          className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center shrink-0 hover:bg-gray-50 cursor-pointer"
+          className="w-8 h-8 bg-card-bg rounded-lg shadow-sm flex items-center justify-center shrink-0 hover:bg-surface-hover cursor-pointer"
         >
-          <ArrowRight size={18} className="text-[#1B2124]" />
+          <ArrowRight size={18} className="text-text-primary" />
         </button>
       </div>
     </div>

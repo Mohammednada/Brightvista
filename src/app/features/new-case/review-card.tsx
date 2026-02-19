@@ -45,10 +45,10 @@ export function ReviewCard({ onApprove, onEdit, caseData }: ReviewCardProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className="bg-white rounded-2xl border border-border-default overflow-hidden shadow-sm"
+      className="bg-card-bg rounded-2xl border border-border-default overflow-hidden shadow-sm"
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-[#f0f7ff] to-[#fafbfc] border-b border-border-default">
+      <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-surface-bg to-card-bg border-b border-border-default">
         <div className="w-7 h-7 rounded-lg bg-brand/10 flex items-center justify-center">
           <FileText size={14} className="text-brand" />
         </div>
@@ -117,7 +117,7 @@ export function ReviewCard({ onApprove, onEdit, caseData }: ReviewCardProps) {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={onEdit}
-          className="flex items-center justify-center gap-2 bg-white border border-border-default text-text-secondary rounded-xl px-4 py-2.5 text-[13px] font-medium cursor-pointer hover:border-[#1F425F]/30 transition-all"
+          className="flex items-center justify-center gap-2 bg-card-bg border border-border-default text-text-secondary rounded-xl px-4 py-2.5 text-[13px] font-medium cursor-pointer hover:border-brand/30 transition-all"
         >
           <Pencil size={14} />
           Edit

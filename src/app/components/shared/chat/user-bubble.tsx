@@ -20,7 +20,7 @@ export const UserBubble = React.forwardRef<HTMLDivElement, { text: string; time:
             </p>
           </div>
           <span
-            className="text-[10px] leading-[14px] text-[#c0c8ce] pr-1"
+            className="text-[10px] leading-[14px] text-text-muted pr-1"
           >
             {time}
           </span>

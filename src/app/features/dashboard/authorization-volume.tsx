@@ -39,8 +39,8 @@ export function AuthorizationVolume() {
             Real-time submissions tracking
           </p>
         </div>
-        <button className="p-2 rounded-lg hover:bg-[#e4e8eb] cursor-pointer">
-          <MoreHorizontal size={20} className="text-[#1B2124]" />
+        <button className="p-2 rounded-lg hover:bg-icon-active-bg cursor-pointer">
+          <MoreHorizontal size={20} className="text-text-primary" />
         </button>
       </div>
 
@@ -100,11 +100,12 @@ export function AuthorizationVolume() {
             />
             <Tooltip
               contentStyle={{
-                background: "white",
-                border: "1px solid #e5e5e5",
+                background: "var(--color-card-bg)",
+                border: "1px solid var(--color-border-default)",
                 borderRadius: 8,
                 fontSize: 12,
                 fontFamily: "'Ubuntu Sans', sans-serif",
+                color: "var(--color-text-primary)",
               }}
             />
             <Bar

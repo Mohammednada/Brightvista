@@ -117,7 +117,7 @@ export const RightPanel = forwardRef<RightPanelHandle>(function RightPanel(_, re
   const showNextAction = lastAgentMsg?.nextAction && !isTyping;
 
   return (
-    <div className="w-[476px] shrink-0 h-full flex flex-col bg-white">
+    <div className="w-[476px] shrink-0 h-full flex flex-col bg-background">
       {/* Scrollable content */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-6">
         <MorningBriefing />
@@ -158,8 +158,8 @@ export const RightPanel = forwardRef<RightPanelHandle>(function RightPanel(_, re
       </div>
 
       {/* Chat input */}
-      <div className="bg-white border-t border-border-default px-5 py-4">
-        <div className="flex items-center bg-white rounded-[14px] border border-border-default shadow-sm overflow-hidden">
+      <div className="bg-background border-t border-border-default px-5 py-4">
+        <div className="flex items-center bg-background rounded-[14px] border border-border-default shadow-sm overflow-hidden">
           <input
             ref={inputRef}
             type="text"
@@ -167,29 +167,29 @@ export const RightPanel = forwardRef<RightPanelHandle>(function RightPanel(_, re
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Write anything here..."
-            className="flex-1 px-4 py-3 text-[16px] font-['Ubuntu',sans-serif] text-[#1a1a1a] placeholder-[#a5a5a5] outline-none bg-transparent tracking-[-0.25px]"
+            className="flex-1 px-4 py-3 text-[16px] font-['Ubuntu',sans-serif] text-text-primary placeholder-text-muted outline-none bg-transparent tracking-[-0.25px]"
           />
           <div className="flex items-center gap-0.5 p-2">
-            <button className="w-7 h-7 flex items-center justify-center rounded-[10px] hover:bg-[#f0f2f4] cursor-pointer">
+            <button className="w-7 h-7 flex items-center justify-center rounded-[10px] hover:bg-surface-hover cursor-pointer">
               <svg className="block size-[18px]" fill="none" viewBox="0 0 17.0833 16.2501">
-                <path d={navSvg.pee57f00} stroke="#565656" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.25" />
-                <path d={navSvg.p25344a00} stroke="#565656" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.25" />
-                <path d="M1.45833 5.62506H16.4583" stroke="#565656" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.25" />
-                <path d="M0.625 10.6251H15.625" stroke="#565656" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.25" />
+                <path d={navSvg.pee57f00} stroke="var(--color-icon-default)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.25" />
+                <path d={navSvg.p25344a00} stroke="var(--color-icon-default)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.25" />
+                <path d="M1.45833 5.62506H16.4583" stroke="var(--color-icon-default)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.25" />
+                <path d="M0.625 10.6251H15.625" stroke="var(--color-icon-default)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.25" />
               </svg>
             </button>
-            <button className="w-7 h-7 flex items-center justify-center rounded-[10px] hover:bg-[#f0f2f4] cursor-pointer">
+            <button className="w-7 h-7 flex items-center justify-center rounded-[10px] hover:bg-surface-hover cursor-pointer">
               <svg className="block size-[18px]" fill="none" viewBox="0 0 16.2021 15.3042">
-                <path d={navSvg.pe160000} stroke="#565656" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.25" />
+                <path d={navSvg.pe160000} stroke="var(--color-icon-default)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.25" />
               </svg>
             </button>
-            <button className="w-7 h-7 flex items-center justify-center rounded-[10px] hover:bg-[#f0f2f4] cursor-pointer">
+            <button className="w-7 h-7 flex items-center justify-center rounded-[10px] hover:bg-surface-hover cursor-pointer">
               <svg className="block size-[18px]" fill="none" viewBox="0 0 17.9249 17.9167">
-                <path d={navSvg.pa48ab00} fill="#565656" />
-                <path d={navSvg.p921f100} fill="#565656" />
-                <path d={navSvg.p2750400} fill="#565656" />
-                <path d={navSvg.p91b3380} fill="#565656" />
-                <path d={navSvg.p255db200} fill="#565656" />
+                <path d={navSvg.pa48ab00} fill="var(--color-icon-default)" />
+                <path d={navSvg.p921f100} fill="var(--color-icon-default)" />
+                <path d={navSvg.p2750400} fill="var(--color-icon-default)" />
+                <path d={navSvg.p91b3380} fill="var(--color-icon-default)" />
+                <path d={navSvg.p255db200} fill="var(--color-icon-default)" />
               </svg>
             </button>
             <div className="w-px h-5 bg-border-default mx-1" />
@@ -199,11 +199,11 @@ export const RightPanel = forwardRef<RightPanelHandle>(function RightPanel(_, re
               className={`w-8 h-8 flex items-center justify-center rounded-[10px] cursor-pointer transition-colors ${
                 inputValue.trim() && !isTyping
                   ? "bg-brand hover:bg-[#2d5a7a]"
-                  : "hover:bg-[#f0f2f4]"
+                  : "hover:bg-surface-hover"
               }`}
             >
               <svg className="block size-full" fill="none" viewBox="0 0 32 32">
-                <path d={navSvg.p9d83400} fill={inputValue.trim() && !isTyping ? "white" : "#565656"} />
+                <path d={navSvg.p9d83400} fill={inputValue.trim() && !isTyping ? "white" : "var(--color-icon-default)"} />
               </svg>
             </button>
           </div>

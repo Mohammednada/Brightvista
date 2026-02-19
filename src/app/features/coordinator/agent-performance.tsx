@@ -46,7 +46,7 @@ export function AIAgentPerformance() {
         {agentActions.map((action, i) => (
           <div
             key={action.channel}
-            className="flex-1 min-w-[140px] bg-white rounded-xl border border-border-default p-3.5 flex flex-col gap-3 cursor-pointer transition-all duration-150"
+            className="flex-1 min-w-[140px] bg-card-bg rounded-xl border border-border-default p-3.5 flex flex-col gap-3 cursor-pointer transition-all duration-150"
             style={{
               borderColor: hoveredIdx === i ? action.color : "#e5e5e5",
               boxShadow: hoveredIdx === i ? `0 2px 8px ${action.color}18` : "none",

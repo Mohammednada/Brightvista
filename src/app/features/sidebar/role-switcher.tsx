@@ -59,7 +59,7 @@ export function RoleSwitcher({ activeRole, onRoleChange }: RoleSwitcherProps) {
       {/* Dropdown */}
       {open && (
         <div className="absolute left-full bottom-0 ml-2.5 z-50 w-[220px]">
-          <div className="bg-white rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.12)] border border-border-default py-2 overflow-hidden">
+          <div className="bg-card-bg rounded-xl shadow-[0px_4px_16px_rgba(0,0,0,0.12)] border border-border-default py-2 overflow-hidden">
             {/* Header */}
             <div className="px-3 py-2">
               <p
@@ -81,8 +81,8 @@ export function RoleSwitcher({ activeRole, onRoleChange }: RoleSwitcherProps) {
                   }}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 cursor-pointer transition-colors ${
                     isActive
-                      ? "bg-[#f0f5ff]"
-                      : "hover:bg-[#f7f8fa]"
+                      ? "bg-surface-dropdown"
+                      : "hover:bg-surface-hover"
                   }`}
                 >
                   <div

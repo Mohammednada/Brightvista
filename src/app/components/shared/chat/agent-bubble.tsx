@@ -27,7 +27,7 @@ export const AgentBubble = React.forwardRef<
           <ActionOptionsBar options={actionOptions} onSelect={onActionSelect} />
         )}
         <span
-          className="text-[10px] leading-[14px] text-[#c0c8ce]"
+          className="text-[10px] leading-[14px] text-text-muted"
         >
           {time}
         </span>

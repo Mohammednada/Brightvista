@@ -61,7 +61,7 @@ export function ActionFooter({ status, currentStep, onSubmit, onSaveDraft, agent
         className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all ${
           canSubmit
             ? "bg-brand text-white hover:bg-[#2d5a7a] cursor-pointer shadow-sm"
-            : "bg-[#f0f2f4] text-text-muted cursor-not-allowed"
+            : "bg-surface-hover text-text-muted cursor-not-allowed"
         }`}
       >
         <Send size={14} />

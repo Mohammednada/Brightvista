@@ -45,27 +45,27 @@ export function DocumentUploadZone({ onComplete }: { onComplete: () => void }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="w-full max-w-[85%] rounded-xl border border-border-default bg-white overflow-hidden shadow-sm"
+      className="w-full max-w-[85%] rounded-xl border border-border-default bg-card-bg overflow-hidden shadow-sm"
     >
       {phase === "idle" && (
         <div
           onClick={handleUpload}
-          className="p-6 flex flex-col items-center gap-3 cursor-pointer hover:bg-[#f9fafb] transition-colors border-2 border-dashed border-[#d0d5dd] m-3 rounded-lg"
+          className="p-6 flex flex-col items-center gap-3 cursor-pointer hover:bg-surface-hover transition-colors border-2 border-dashed border-border-default m-3 rounded-lg"
         >
-          <div className="w-12 h-12 rounded-xl bg-[#f0f7ff] flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-surface-bg flex items-center justify-center">
             <Upload size={22} className="text-[#3385f0]" />
           </div>
           <div className="flex flex-col items-center gap-1">
             <span className="text-[13px] text-text-primary font-semibold">
               Click to upload or drag & drop
             </span>
-            <span className="text-[11px] text-[#6b7c93]">
+            <span className="text-[11px] text-text-muted">
               PDF, JPG, PNG, TIFF -- Max 25MB
             </span>
           </div>
           <div className="flex items-center gap-4 mt-1">
             {["Referral Letter", "Lab Results", "Insurance Card"].map(label => (
-              <span key={label} className="text-[10px] text-[#3385f0] bg-[#f0f7ff] px-2 py-0.5 rounded-full">
+              <span key={label} className="text-[10px] text-brand bg-brand/10 px-2 py-0.5 rounded-full">
                 {label}
               </span>
             ))}
@@ -75,22 +75,22 @@ export function DocumentUploadZone({ onComplete }: { onComplete: () => void }) {
 
       {phase === "selected" && (
         <div className="p-5 flex flex-col gap-3">
-          <div className="flex items-center gap-3 bg-[#f9fafb] rounded-lg px-3 py-2.5 border border-[#e5e8ec]">
+          <div className="flex items-center gap-3 bg-surface-bg rounded-lg px-3 py-2.5 border border-border-default">
             <File size={18} className="text-[#3385f0] shrink-0" />
             <div className="flex-1 min-w-0">
               <span className="text-[12px] text-text-primary block truncate font-medium">
                 Patient_Referral_Thompson_Margaret.pdf
               </span>
-              <span className="text-[10px] text-[#6b7c93]">2.4 MB</span>
+              <span className="text-[10px] text-text-muted">2.4 MB</span>
             </div>
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="8" r="6" stroke="#e0e5e9" strokeWidth="2" />
+                <circle cx="8" cy="8" r="6" stroke="var(--color-border-default)" strokeWidth="2" />
                 <path d="M8 2A6 6 0 0 1 14 8" stroke="#3385f0" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </motion.div>
           </div>
-          <span className="text-[11px] text-[#6b7c93] text-center">
+          <span className="text-[11px] text-text-muted text-center">
             Preparing document for OCR analysis...
           </span>
         </div>
@@ -118,7 +118,7 @@ export function DocumentUploadZone({ onComplete }: { onComplete: () => void }) {
                 ) : i === ocrStep ? (
                   <motion.div className="shrink-0" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <circle cx="6" cy="6" r="4.5" stroke="#e0e5e9" strokeWidth="1.5" />
+                      <circle cx="6" cy="6" r="4.5" stroke="var(--color-border-default)" strokeWidth="1.5" />
                       <path d="M6 1.5A4.5 4.5 0 0 1 10.5 6" stroke="#3385f0" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
                   </motion.div>
@@ -126,7 +126,7 @@ export function DocumentUploadZone({ onComplete }: { onComplete: () => void }) {
                   <div className="w-3 h-3 shrink-0" />
                 )}
                 <span
-                  className={`text-[11px] ${i <= ocrStep ? "text-text-secondary" : "text-[#c0c8ce]"}${i === ocrStep ? " font-medium" : ""}`}
+                  className={`text-[11px] ${i <= ocrStep ? "text-text-secondary" : "text-text-muted"}${i === ocrStep ? " font-medium" : ""}`}
                 >
                   {step}
                 </span>
@@ -193,7 +193,7 @@ export function DocumentCaptureZone({ onComplete }: { onComplete: () => void }) 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="w-full max-w-[85%] rounded-xl border border-border-default bg-white overflow-hidden shadow-sm"
+      className="w-full max-w-[85%] rounded-xl border border-border-default bg-card-bg overflow-hidden shadow-sm"
     >
       {phase === "viewfinder" && (
         <div className="flex flex-col">
@@ -238,7 +238,7 @@ export function DocumentCaptureZone({ onComplete }: { onComplete: () => void }) 
             initial={{ scale: 1.2, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="w-[180px] h-[120px] bg-[#f5f7fa] rounded-lg border border-[#dfe4ea] flex flex-col items-center justify-center gap-1.5 p-4"
+            className="w-[180px] h-[120px] bg-surface-bg rounded-lg border border-border-default flex flex-col items-center justify-center gap-1.5 p-4"
           >
             <div className="w-full h-1.5 bg-[#1a365d]/20 rounded" />
             <div className="w-[80%] h-1.5 bg-[#1a365d]/15 rounded" />
@@ -248,11 +248,11 @@ export function DocumentCaptureZone({ onComplete }: { onComplete: () => void }) 
           </motion.div>
           <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="10" r="8" stroke="#e0e5e9" strokeWidth="2" />
+              <circle cx="10" cy="10" r="8" stroke="var(--color-border-default)" strokeWidth="2" />
               <path d="M10 2A8 8 0 0 1 18 10" stroke="#096" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </motion.div>
-          <span className="text-[12px] text-[#6b7c93]">
+          <span className="text-[12px] text-text-muted">
             Image captured. Preparing for OCR...
           </span>
         </div>
@@ -280,7 +280,7 @@ export function DocumentCaptureZone({ onComplete }: { onComplete: () => void }) 
                 ) : i === ocrStep ? (
                   <motion.div className="shrink-0" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <circle cx="6" cy="6" r="4.5" stroke="#e0e5e9" strokeWidth="1.5" />
+                      <circle cx="6" cy="6" r="4.5" stroke="var(--color-border-default)" strokeWidth="1.5" />
                       <path d="M6 1.5A4.5 4.5 0 0 1 10.5 6" stroke="#096" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
                   </motion.div>
@@ -288,7 +288,7 @@ export function DocumentCaptureZone({ onComplete }: { onComplete: () => void }) 
                   <div className="w-3 h-3 shrink-0" />
                 )}
                 <span
-                  className={`text-[11px] ${i <= ocrStep ? "text-text-secondary" : "text-[#c0c8ce]"}${i === ocrStep ? " font-medium" : ""}`}
+                  className={`text-[11px] ${i <= ocrStep ? "text-text-secondary" : "text-text-muted"}${i === ocrStep ? " font-medium" : ""}`}
                 >
                   {step}
                 </span>

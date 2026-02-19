@@ -18,10 +18,10 @@ export function RpaConsentCard({ onAuthorize, onDeny, patientName, procedure, pa
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full max-w-[88%] rounded-xl overflow-hidden bg-white border border-[#e5e8ee]"
+      className="w-full max-w-[88%] rounded-xl overflow-hidden bg-card-bg border border-border-default"
     >
       {/* Header */}
-      <div className="px-5 pt-5 pb-4 border-b border-[#f0f2f5]">
+      <div className="px-5 pt-5 pb-4 border-b border-border-default">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-lg bg-[#f3eff8] flex items-center justify-center">
             <Lock size={15} className="text-[#7C3AED]" />
@@ -30,19 +30,19 @@ export function RpaConsentCard({ onAuthorize, onDeny, patientName, procedure, pa
             <span className="text-text-primary block text-[14px] font-bold">
               Portal Credential Authorization
             </span>
-            <span className="text-[11px] text-[#8896a6]">
+            <span className="text-[11px] text-text-muted">
               {displayPayer} provider portal access
             </span>
           </div>
         </div>
-        <p className="text-[13px] text-[#6b7c93] leading-[1.6]">
+        <p className="text-[13px] text-text-secondary leading-[1.6]">
           The RPA bot needs your provider credentials to log into the {displayPayer} portal and submit the PA request for <strong>{displayPatient}</strong> ({displayProcedure}).
         </p>
       </div>
 
       {/* Permissions */}
       <div className="px-5 py-3">
-        <span className="text-[10px] text-[#94a3b8] tracking-wide block mb-2 font-semibold">
+        <span className="text-[10px] text-text-muted tracking-wide block mb-2 font-semibold">
           PORTAL ACTIONS
         </span>
         <div className="flex flex-col gap-1.5">
@@ -56,10 +56,10 @@ export function RpaConsentCard({ onAuthorize, onDeny, patientName, procedure, pa
                 transition={{ delay: 0.15 + i * 0.05, duration: 0.2 }}
                 className="flex items-center gap-2.5 py-1.5"
               >
-                <Icon size={13} className="text-[#8896a6] shrink-0" />
-                <span className="text-[11px] text-[#3d4f5f] font-medium">{perm.label}</span>
-                <span className="text-[10px] text-[#b0bac5]">&middot;</span>
-                <span className="text-[10px] text-[#94a3b8] truncate">{perm.desc}</span>
+                <Icon size={13} className="text-text-muted shrink-0" />
+                <span className="text-[11px] text-text-primary font-medium">{perm.label}</span>
+                <span className="text-[10px] text-text-muted">&middot;</span>
+                <span className="text-[10px] text-text-muted truncate">{perm.desc}</span>
               </motion.div>
             );
           })}
@@ -78,7 +78,7 @@ export function RpaConsentCard({ onAuthorize, onDeny, patientName, procedure, pa
       <div className="px-5 pb-4 pt-1 flex items-center gap-2.5">
         <button
           onClick={onDeny}
-          className="flex-1 py-2 rounded-lg border border-[#e5e8ee] text-[12px] text-[#6b7c93] bg-white hover:bg-[#f8f9fb] transition-colors cursor-pointer font-medium"
+          className="flex-1 py-2 rounded-lg border border-border-default text-[12px] text-text-secondary bg-card-bg hover:bg-surface-hover transition-colors cursor-pointer font-medium"
         >
           Deny
         </button>

@@ -91,7 +91,7 @@ export function CaseStatusChart() {
                 >
                   {item.name}
                 </span>
-                <div className="flex-1 h-[22px] bg-[#f0f2f4] rounded-md overflow-hidden">
+                <div className="flex-1 h-[22px] bg-surface-hover rounded-md overflow-hidden">
                   <div
                     className="h-full rounded-md transition-all duration-300"
                     style={{

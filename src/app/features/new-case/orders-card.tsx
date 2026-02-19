@@ -35,7 +35,7 @@ export function OrdersCard({ orders, onSelect }: OrdersCardProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, delay: 0.08 * i }}
             onClick={() => onSelect(order)}
-            className="w-full text-left bg-white rounded-xl border border-border-default px-4 py-3 cursor-pointer hover:border-[#1F425F]/30 hover:shadow-md transition-all group"
+            className="w-full text-left bg-card-bg rounded-xl border border-border-default px-4 py-3 cursor-pointer hover:border-brand/30 hover:shadow-md transition-all group"
           >
             {/* Top row — patient name + priority */}
             <div className="flex items-center justify-between gap-2 mb-1.5">

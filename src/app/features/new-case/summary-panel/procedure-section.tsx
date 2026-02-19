@@ -118,7 +118,7 @@ export function ProcedureSection({ procedure, dispatch, sectionStatus, isCollaps
                       value={procedure.cptCode || ""}
                       onChange={(e) => update({ cptCode: e.target.value })}
                       placeholder="e.g. 72141"
-                      className="flex-1 min-w-0 px-2 py-0.5 text-[12px] text-text-primary text-right bg-white border border-border-default rounded-md focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
+                      className="flex-1 min-w-0 px-2 py-0.5 text-[12px] text-text-primary text-right bg-background border border-border-default rounded-md focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
                     />
                   ) : (
                     <span className="text-[12px] text-text-primary font-medium text-right truncate">
@@ -142,7 +142,7 @@ export function ProcedureSection({ procedure, dispatch, sectionStatus, isCollaps
                       value={procedure.icd10Code || ""}
                       onChange={(e) => update({ icd10Code: e.target.value })}
                       placeholder="e.g. M54.12"
-                      className="flex-1 min-w-0 px-2 py-0.5 text-[12px] text-text-primary text-right bg-white border border-border-default rounded-md focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
+                      className="flex-1 min-w-0 px-2 py-0.5 text-[12px] text-text-primary text-right bg-background border border-border-default rounded-md focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
                     />
                   ) : (
                     <span className="text-[12px] text-text-primary font-medium text-right truncate">
@@ -163,7 +163,7 @@ export function ProcedureSection({ procedure, dispatch, sectionStatus, isCollaps
                       value={procedure.orderingPhysician || ""}
                       onChange={(e) => update({ orderingPhysician: e.target.value })}
                       placeholder="e.g. Dr. Sarah Patel"
-                      className="flex-1 min-w-0 px-2 py-0.5 text-[12px] text-text-primary text-right bg-white border border-border-default rounded-md focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
+                      className="flex-1 min-w-0 px-2 py-0.5 text-[12px] text-text-primary text-right bg-background border border-border-default rounded-md focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
                     />
                   ) : (
                     <span className="text-[12px] text-text-primary font-medium text-right truncate">
@@ -180,7 +180,7 @@ export function ProcedureSection({ procedure, dispatch, sectionStatus, isCollaps
       </AnimatePresence>
 
       {/* Divider */}
-      <div className="mt-2 border-t border-[#f0f2f4]" />
+      <div className="mt-2 border-t border-border-default" />
     </motion.div>
   );
 }

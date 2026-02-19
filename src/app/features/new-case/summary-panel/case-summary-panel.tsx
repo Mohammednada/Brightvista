@@ -124,7 +124,7 @@ export function CaseSummaryPanel({ state, dispatch, activePhaseId, agentModeActi
       initial={{ width: 0, opacity: 0 }}
       animate={{ width: 400, opacity: 1 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="shrink-0 h-full overflow-hidden border-l border-border-default bg-white"
+      className="shrink-0 h-full overflow-hidden border-l border-border-default bg-background"
     >
       <div className="w-[400px] h-full flex flex-col">
         {/* Scrollable content */}
@@ -134,7 +134,7 @@ export function CaseSummaryPanel({ state, dispatch, activePhaseId, agentModeActi
             <CaseHeader caseId={state.caseId} status={state.status} />
           </div>
 
-          <div className="mx-5 border-t border-[#f0f2f4]" />
+          <div className="mx-5 border-t border-border-default" />
 
           {/* Case Tracker */}
           <CaseTracker steps={state.steps} />

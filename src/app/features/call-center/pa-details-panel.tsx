@@ -15,14 +15,14 @@ interface PaDetailsPanelProps {
 export function PaDetailsPanel({ call }: PaDetailsPanelProps) {
   if (!call) {
     return (
-      <div className="w-[360px] shrink-0 border-l border-border-default bg-white flex items-center justify-center">
+      <div className="w-[360px] shrink-0 border-l border-border-default bg-background flex items-center justify-center">
         <p className="text-[12px] text-text-muted">Select a call to view PA details</p>
       </div>
     );
   }
 
   return (
-    <div className="w-[360px] shrink-0 border-l border-border-default bg-white flex flex-col h-full overflow-hidden">
+    <div className="w-[360px] shrink-0 border-l border-border-default bg-background flex flex-col h-full overflow-hidden">
       {/* Case header — single block matching center panel's header + tabs height */}
       <CaseDetailHeader call={call} />
 
@@ -30,7 +30,7 @@ export function PaDetailsPanel({ call }: PaDetailsPanelProps) {
 
         {/* Call Tracker */}
         <CallTracker call={call} />
-        <div className="mx-5 mb-2 border-t border-[#f0f2f4]" />
+        <div className="mx-5 mb-2 border-t border-border-default" />
 
         {/* Patient */}
         <CollapsibleSection icon={User} title="Patient" defaultOpen>
@@ -65,7 +65,7 @@ export function PaDetailsPanel({ call }: PaDetailsPanelProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.2, delay: i * 0.05 }}
-                className="flex items-center gap-2 py-1.5 rounded-md hover:bg-[#fafbfc] transition-colors px-1 -mx-1"
+                className="flex items-center gap-2 py-1.5 rounded-md hover:bg-surface-hover transition-colors px-1 -mx-1"
               >
                 <CheckCircle size={13} className="text-[#099F69] shrink-0" />
                 <span className="text-[12px] text-text-primary font-medium">{doc}</span>
@@ -126,7 +126,7 @@ export function PaDetailsPanel({ call }: PaDetailsPanelProps) {
                   {call.approvalLikelihood}%
                 </span>
               </div>
-              <div className="h-2 rounded-full bg-[#f0f2f4] overflow-hidden">
+              <div className="h-2 rounded-full bg-surface-hover overflow-hidden">
                 <motion.div
                   className="h-full rounded-full"
                   style={{
@@ -177,7 +177,7 @@ function CaseDetailHeader({ call }: { call: CallQueueItem }) {
           </span>
         </div>
       </div>
-      <div className="mx-5 border-t border-[#f0f2f4]" />
+      <div className="mx-5 border-t border-border-default" />
     </>
   );
 }
@@ -189,7 +189,7 @@ function CaseDetailHeader({ call }: { call: CallQueueItem }) {
 // - Icon: size={13} className="text-text-muted"
 // - Title: text-[10px] font-semibold text-text-muted uppercase tracking-wider
 // - Chevron: size={14} rotate -90 when collapsed
-// - Divider: mt-2 border-t border-[#f0f2f4]
+// - Divider: mt-2 border-t border-border-default
 
 function CollapsibleSection({
   icon: Icon,
@@ -257,7 +257,7 @@ function CollapsibleSection({
       </AnimatePresence>
 
       {/* Divider */}
-      <div className="mt-2 border-t border-[#f0f2f4]" />
+      <div className="mt-2 border-t border-border-default" />
     </div>
   );
 }
@@ -340,7 +340,7 @@ function CallTracker({ call }: { call: CallQueueItem }) {
               <div className="flex flex-col items-center">
                 <TrackerDot status={step.status} />
                 {!isLast && (
-                  <div className={`w-px flex-1 min-h-[16px] ${done ? "bg-[#099F69]" : "bg-[#e5e5e5]"}`} />
+                  <div className={`w-px flex-1 min-h-[16px] ${done ? "bg-[#099F69]" : "bg-border-default"}`} />
                 )}
               </div>
 
@@ -394,6 +394,6 @@ function TrackerDot({ status }: { status: TrackerStatus }) {
   }
 
   return (
-    <div className="w-4 h-4 rounded-full border-[1.5px] border-[#ddd] shrink-0" />
+    <div className="w-4 h-4 rounded-full border-[1.5px] border-border-default shrink-0" />
   );
 }

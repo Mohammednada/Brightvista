@@ -25,12 +25,12 @@ export function MorningBriefing() {
       </div>
       <div className="flex flex-col gap-2">
         <p
-          className="text-[16px] leading-[1.35] text-[#1a1a1a] capitalize font-semibold"
+          className="text-[16px] leading-[1.35] text-text-primary capitalize font-semibold"
         >
           {briefing.heading}
         </p>
         <p
-          className="text-[14px] leading-[22.75px] text-[#737373] font-medium"
+          className="text-[14px] leading-[22.75px] text-text-secondary font-medium"
         >
           {briefing.description}
         </p>

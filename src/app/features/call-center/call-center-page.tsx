@@ -22,9 +22,9 @@ export function CallCenterPage() {
   return (
     <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
       {/* Header — matches DashboardHeader pattern (sticky, border-b) */}
-      <div className="bg-white shrink-0 w-full sticky top-0 z-10 border-b border-border-default">
+      <div className="bg-background shrink-0 w-full sticky top-0 z-10 border-b border-border-default">
         <div className="flex items-center px-4 h-[56px]">
-          <p className="text-[16px] text-[#1a1a1a] font-semibold">Voice Call Center</p>
+          <p className="text-[16px] text-text-primary font-semibold">Voice Call Center</p>
         </div>
       </div>
 
@@ -37,7 +37,7 @@ export function CallCenterPage() {
           filterTab={filterTab}
           onFilterChange={setFilterTab}
         />
-        <div className="flex-1 min-w-0 flex flex-col bg-white border-r border-border-default">
+        <div className="flex-1 min-w-0 flex flex-col bg-background border-r border-border-default">
           <ActiveCallPanel call={selectedCall} />
         </div>
         <PaDetailsPanel call={selectedCall} />

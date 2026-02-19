@@ -143,8 +143,8 @@ export function LiveTranscript({
               initial={animate ? { opacity: 0, y: 4 } : false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25 }}
-              className={`flex items-baseline py-2.5 border-b border-[#f0f2f4] last:border-b-0 ${
-                isLatest ? "bg-brand/8 -mx-5 px-5 border-l-2 border-l-brand" : i % 2 === 1 ? "bg-[#fafbfc]" : ""
+              className={`flex items-baseline py-2.5 border-b border-border-default last:border-b-0 ${
+                isLatest ? "bg-brand/8 -mx-5 px-5 border-l-2 border-l-brand" : i % 2 === 1 ? "bg-surface-bg" : ""
               }`}
             >
               {/* Timestamp */}
@@ -292,14 +292,14 @@ export function AudioWaveformPlayer({
                 <motion.div
                   key={i}
                   className="w-[2px] rounded-full"
-                  style={{ background: isActive ? "var(--color-primary-brand)" : "#d1d5db" }}
+                  style={{ background: isActive ? "var(--color-primary-brand)" : "var(--color-border-default)" }}
                   animate={playing ? { height: [h * 0.5, h, h * 0.7, h * 0.9, h * 0.5] } : { height: h }}
                   transition={playing ? { duration: 0.6, repeat: Infinity, repeatType: "mirror", delay: i * 0.025 } : { duration: 0.3 }}
                 />
               );
             })}
           </div>
-          <div className="w-full h-[2px] bg-[#e5e5e5] rounded-full overflow-hidden">
+          <div className="w-full h-[2px] bg-border-default rounded-full overflow-hidden">
             <motion.div className="h-full bg-brand rounded-full" style={{ width: `${progress * 100}%` }} />
           </div>
         </div>

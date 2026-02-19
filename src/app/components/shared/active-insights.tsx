@@ -7,7 +7,7 @@ export function ActiveInsights() {
       title: "Payer Latency Bypass",
       description:
         "I've rerouted 12 UHC cases to the manual escalation queue to avoid portal delays.",
-      bgIcon: "bg-white shadow-sm",
+      bgIcon: "bg-card-bg shadow-sm",
     },
     {
       icon: (
@@ -16,7 +16,7 @@ export function ActiveInsights() {
       title: "Documentation Warning",
       description:
         "6 recent Cardiology referrals are missing medical necessity letters. This will trigger denials.",
-      bgIcon: "bg-white shadow-sm",
+      bgIcon: "bg-card-bg shadow-sm",
     },
   ];
 
@@ -31,7 +31,7 @@ export function ActiveInsights() {
         {insights.map((insight, i) => (
           <div
             key={i}
-            className="bg-[#fafafa] rounded-xl border border-[#f5f5f5] p-4"
+            className="bg-surface-bg rounded-xl border border-border-default p-4"
           >
             <div className="flex gap-3 items-start">
               <div
@@ -46,7 +46,7 @@ export function ActiveInsights() {
                   {insight.title}
                 </p>
                 <p
-                  className="text-[12px] leading-[1.5] text-[#737373]"
+                  className="text-[12px] leading-[1.5] text-text-secondary"
                 >
                   {insight.description}
                 </p>

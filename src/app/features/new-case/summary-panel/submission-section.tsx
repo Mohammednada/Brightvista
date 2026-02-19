@@ -121,7 +121,7 @@ export function SubmissionSection({ details, isCollapsed, onToggle, activityLabe
       </AnimatePresence>
 
       {/* Divider */}
-      <div className="mt-2 border-t border-[#f0f2f4]" />
+      <div className="mt-2 border-t border-border-default" />
     </motion.div>
   );
 }

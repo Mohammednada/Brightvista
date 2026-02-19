@@ -81,7 +81,7 @@ export function ApprovalSection({ likelihood, factors, isCollapsed, onToggle }: 
             className="overflow-hidden"
           >
             {/* Progress bar */}
-            <div className="h-2 rounded-full bg-[#f0f2f4] overflow-hidden mb-3">
+            <div className="h-2 rounded-full bg-surface-hover overflow-hidden mb-3">
               <motion.div
                 className="h-full rounded-full"
                 style={{ backgroundColor: color }}
@@ -122,7 +122,7 @@ export function ApprovalSection({ likelihood, factors, isCollapsed, onToggle }: 
       </AnimatePresence>
 
       {/* Divider */}
-      <div className="mt-2 border-t border-[#f0f2f4]" />
+      <div className="mt-2 border-t border-border-default" />
     </motion.div>
   );
 }

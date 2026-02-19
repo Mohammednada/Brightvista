@@ -66,7 +66,7 @@ function EditableField({ label, value, confidence, isEditing, onChange, fullWidt
           type="text"
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-2 py-1 text-[13px] text-text-primary bg-white border border-border-default rounded-lg focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
+          className="w-full px-2 py-1 text-[13px] text-text-primary bg-card-bg border border-border-default rounded-lg focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none transition-all"
         />
       ) : (
         <p className="text-[13px] text-text-primary font-medium leading-snug truncate">
@@ -111,7 +111,7 @@ export function PatientCard({ patient, confidence, dispatch }: PatientCardProps)
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className="bg-white rounded-2xl border border-border-default overflow-hidden"
+      className="bg-card-bg rounded-2xl border border-border-default overflow-hidden"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border-default">

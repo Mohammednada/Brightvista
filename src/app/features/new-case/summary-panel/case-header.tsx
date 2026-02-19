@@ -3,7 +3,7 @@ import { FileText } from "lucide-react";
 import type { CaseStatus } from "../state/case-builder-state";
 
 const statusConfig: Record<CaseStatus, { label: string; bg: string; text: string }> = {
-  draft: { label: "Draft", bg: "bg-[#f0f2f4]", text: "text-[#717182]" },
+  draft: { label: "Draft", bg: "bg-surface-hover", text: "text-text-muted" },
   "in-progress": { label: "In Progress", bg: "bg-[#dbeafe]", text: "text-[#2563eb]" },
   submitted: { label: "Submitted", bg: "bg-[#dcfce7]", text: "text-[#099F69]" },
 };

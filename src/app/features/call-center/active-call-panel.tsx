@@ -411,11 +411,11 @@ function CallHistoryCard({ call }: { call: PastCall }) {
   const OutcomeIcon = cfg.icon;
 
   return (
-    <div className={`rounded-2xl border border-border-default overflow-hidden ${expanded ? "bg-white" : "bg-surface-bg"}`}>
+    <div className={`rounded-2xl border border-border-default overflow-hidden ${expanded ? "bg-card-bg" : "bg-surface-bg"}`}>
       {/* Header — clickable to expand */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full p-5 hover:bg-[#fafbfc] transition-colors cursor-pointer"
+        className="w-full p-5 hover:bg-surface-hover transition-colors cursor-pointer"
       >
         {/* Top row: payer, type badge, outcome, chevron */}
         <div className="flex items-center gap-2">
@@ -448,7 +448,7 @@ function CallHistoryCard({ call }: { call: PastCall }) {
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className="border-t border-[#f0f2f4]"
+          className="border-t border-border-default"
         >
           {/* Compact transcript */}
           <div className="max-h-[240px] overflow-y-auto scrollbar-none">
@@ -456,7 +456,7 @@ function CallHistoryCard({ call }: { call: PastCall }) {
               {call.transcript.map((line, i) => {
                 const isAgent = line.speaker === "agent";
                 return (
-                  <div key={i} className="flex items-baseline py-1.5 border-b border-[#f0f2f4] last:border-b-0">
+                  <div key={i} className="flex items-baseline py-1.5 border-b border-border-default last:border-b-0">
                     <span className="w-[42px] shrink-0 text-[10px] text-text-muted tabular-nums">
                       {line.timestamp}
                     </span>
@@ -473,7 +473,7 @@ function CallHistoryCard({ call }: { call: PastCall }) {
           </div>
 
           {/* Audio player */}
-          <div className="px-5 py-5 border-t border-[#f0f2f4] bg-surface-bg">
+          <div className="px-5 py-5 border-t border-border-default bg-surface-bg">
             <AudioWaveformPlayer totalDuration={call.recording.durationSecs} />
           </div>
 

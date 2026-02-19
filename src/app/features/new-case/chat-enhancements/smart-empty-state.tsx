@@ -96,7 +96,7 @@ export function SmartEmptyState({ onSendMessage, onStartAgentMode }: SmartEmptyS
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: 0.1 + i * 0.06 }}
                 onClick={() => onSendMessage(`I need to create a new prior authorization case.`)}
-                className="flex items-center gap-3 bg-white border border-border-default rounded-xl px-4 py-3 text-left cursor-pointer hover:border-[#1F425F]/30 hover:shadow-sm transition-all group"
+                className="flex items-center gap-3 bg-card-bg border border-border-default rounded-xl px-4 py-3 text-left cursor-pointer hover:border-brand/30 hover:shadow-sm transition-all group"
               >
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${iconConfig.bg}`}>
                   <span className={iconConfig.color}>{iconConfig.icon}</span>
@@ -128,9 +128,9 @@ export function SmartEmptyState({ onSendMessage, onStartAgentMode }: SmartEmptyS
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: 0.25 + i * 0.06 }}
               onClick={() => onSendMessage(sp.prompt)}
-              className="flex items-center gap-3 bg-white border border-border-default rounded-xl px-4 py-3.5 text-left cursor-pointer hover:border-[#1F425F]/30 hover:shadow-sm transition-all group"
+              className="flex items-center gap-3 bg-card-bg border border-border-default rounded-xl px-4 py-3.5 text-left cursor-pointer hover:border-brand/30 hover:shadow-sm transition-all group"
             >
-              <div className="w-8 h-8 bg-surface-bg rounded-lg flex items-center justify-center shrink-0 group-hover:bg-[#eef4f8] transition-colors">
+              <div className="w-8 h-8 bg-surface-bg rounded-lg flex items-center justify-center shrink-0 group-hover:bg-surface-hover transition-colors">
                 {sp.icon}
               </div>
               <span className="text-[13px] leading-[18px] text-text-primary font-medium">

@@ -94,13 +94,13 @@ export function ActiveCoordinators() {
         >
           Active Coordinators
         </p>
-        <button className="bg-surface-dropdown rounded-lg h-[30px] px-2.5 flex items-center gap-1 cursor-pointer hover:bg-[#dde8ed]">
+        <button className="bg-surface-dropdown rounded-lg h-[30px] px-2.5 flex items-center gap-1 cursor-pointer hover:bg-surface-hover">
           <span
-            className="text-[14px] leading-[18px] text-[#111417] font-semibold"
+            className="text-[14px] leading-[18px] text-dropdown-text font-semibold"
           >
             Manage Access
           </span>
-          <ExternalLink size={16} className="text-[#111417]" />
+          <ExternalLink size={16} className="text-dropdown-text" />
         </button>
       </div>
 
@@ -112,7 +112,7 @@ export function ActiveCoordinators() {
           style={{
             opacity: canScrollRight ? 1 : 0,
             background:
-              "linear-gradient(to left, rgba(255,255,255,0.95), transparent)",
+              "linear-gradient(to left, var(--background), transparent)",
           }}
         />
 
@@ -121,14 +121,14 @@ export function ActiveCoordinators() {
           className="w-full overflow-x-auto"
           style={{
             scrollbarWidth: "thin",
-            scrollbarColor: "#c4cdd5 transparent",
+            scrollbarColor: "var(--color-scrollbar-thumb) transparent",
           }}
         >
           <div style={{ minWidth: 640 }}>
             {/* Table Header */}
             <div className="bg-surface-bg rounded-t-lg py-2">
               <div className="flex items-center">
-                <StickyIdCell bg="#f7fafc" className="pl-4">
+                <StickyIdCell bg="var(--color-surface-bg)" className="pl-4">
                   <span
                     className="text-[14px] leading-[18px] text-text-primary font-medium"
                   >
@@ -136,7 +136,7 @@ export function ActiveCoordinators() {
                   </span>
                 </StickyIdCell>
                 <StickyNameCell
-                  bg="#f7fafc"
+                  bg="var(--color-surface-bg)"
                   showShadow={canScrollLeft}
                 >
                   <span
@@ -179,11 +179,11 @@ export function ActiveCoordinators() {
             {/* Table Rows */}
             {coordinators.map((coord, index) => (
               <div key={coord.id} className="group/row">
-                <div className="flex items-center py-1 transition-colors group-hover/row:bg-[#fafbfc]">
+                <div className="flex items-center py-1 transition-colors group-hover/row:bg-surface-hover">
                   {/* ID - Sticky */}
                   <StickyIdCell
-                    bg="white"
-                    className="pl-4 pr-2 group-hover/row:!bg-[#fafbfc] transition-colors"
+                    bg="var(--background)"
+                    className="pl-4 pr-2 group-hover/row:!bg-[var(--color-surface-hover)] transition-colors"
                   >
                     <span className="text-[14px] leading-[22px] text-text-secondary">
                       {coord.id}
@@ -191,9 +191,9 @@ export function ActiveCoordinators() {
                   </StickyIdCell>
                   {/* Name - Sticky */}
                   <StickyNameCell
-                    bg="white"
+                    bg="var(--background)"
                     showShadow={canScrollLeft}
-                    className="flex flex-col gap-0.5 py-0.5 group-hover/row:!bg-[#fafbfc] transition-colors"
+                    className="flex flex-col gap-0.5 py-0.5 group-hover/row:!bg-[var(--color-surface-hover)] transition-colors"
                   >
                     <span
                       className="text-[14px] leading-[18px] text-[#3385f0] cursor-pointer hover:underline font-medium"
@@ -236,7 +236,7 @@ export function ActiveCoordinators() {
                           return (
                             <div
                               key={i}
-                              className="h-full border border-[#f7fafc] relative group/segment cursor-pointer transition-opacity hover:opacity-80"
+                              className="h-full border border-border-default relative group/segment cursor-pointer transition-opacity hover:opacity-80"
                               style={{
                                 backgroundColor: bar.color,
                                 width: `${bar.width}px`,
@@ -312,7 +312,7 @@ export function ActiveCoordinators() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            className="flex items-center gap-1 h-[30px] px-1.5 rounded cursor-pointer hover:bg-[#e4e8eb]"
+            className="flex items-center gap-1 h-[30px] px-1.5 rounded cursor-pointer hover:bg-icon-active-bg"
           >
             <ChevronLeft size={16} className="text-[#9caeb8]" />
             <span
@@ -323,7 +323,7 @@ export function ActiveCoordinators() {
           </button>
           <button
             onClick={() => setCurrentPage(currentPage + 1)}
-            className="flex items-center gap-1 h-[30px] px-1.5 rounded cursor-pointer hover:bg-[#e4e8eb]"
+            className="flex items-center gap-1 h-[30px] px-1.5 rounded cursor-pointer hover:bg-icon-active-bg"
           >
             <span
               className="text-[14px] leading-[18px] text-[#3385f0] font-semibold"

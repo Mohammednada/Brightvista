@@ -52,7 +52,7 @@ function CallRow({
     <button
       onClick={onSelect}
       className={`w-full text-left px-4 py-3 transition-colors cursor-pointer ${
-        isSelected ? "bg-[#f7fafc]" : "hover:bg-[#fafbfc]"
+        isSelected ? "bg-surface-bg" : "hover:bg-surface-hover"
       } ${!isLast ? "border-b border-border-default" : ""}`}
     >
       {/* Row 1: payer dot + patient name + status badge */}
@@ -119,7 +119,7 @@ export function CallQueuePanel({
   const filtered = filterCalls(calls, filterTab);
 
   return (
-    <div className="w-[300px] shrink-0 border-r border-border-default flex flex-col h-full bg-white">
+    <div className="w-[300px] shrink-0 border-r border-border-default flex flex-col h-full bg-background">
       {/* Filter tabs — underline style matching dashboard patterns */}
       <div className="flex border-b border-border-default shrink-0">
         {TABS.map((tab) => {
