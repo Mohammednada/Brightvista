@@ -1,7 +1,7 @@
 import { useState } from "react";
 import workspaceSvg from "@/assets/icons/workspace-icon-paths";
 import navSvg from "@/assets/icons/nav-icon-paths";
-import brightvistLogo from "@/assets/brightvista-logo.svg";
+import brightvistLogo from "@/assets/brightvista-logo.png";
 import { RoleSwitcher } from "./role-switcher";
 import type { RoleId } from "./role-switcher";
 
